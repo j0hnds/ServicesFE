@@ -128,6 +128,25 @@
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gtk.HBox" id="hbox1">
+                    <property name="MemberName" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
+                </child>
+                <child>
                   <placeholder />
                 </child>
               </widget>

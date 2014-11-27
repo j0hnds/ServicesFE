@@ -10,9 +10,13 @@ using System.Text;
 
 public partial class MainWindow: Gtk.Window
 {
+	ListStore tubeStore;
+
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		this.Build ();
+		tubeStore = new ListStore (typeof(string));
+		cbTubes.Model = tubeStore;
 	}
 
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
@@ -36,10 +40,7 @@ public partial class MainWindow: Gtk.Window
 		client.Headers ["Content-type"] = "application/json";
 		client.Headers ["Authorization"] = "Token token=\"8b436ea385a33c0605ebe5fcbcee4cfc\"";
 
-		byte[] data = client.DownloadData ("https://trinity-prod-alt.abaqis.int/beanstalk");
-
-		// MemoryStream ms = new MemoryStream (data);
-		// string anS = ms.ToString ();
+		byte[] data = client.DownloadData ("https://trinity-prod-alt.abaqis.int/beanstalk/tubes");
 
 		String s = Encoding.ASCII.GetString (data);
 
@@ -47,8 +48,11 @@ public partial class MainWindow: Gtk.Window
 		JsonReader reader = new JsonTextReader (treader);
 
 		JsonSerializer serializer = new JsonSerializer ();
-		Dictionary<String,String> o = (Dictionary<String,String>)serializer.Deserialize (reader, typeof(Dictionary<String,String>));
+		List<String> tubes = (List<String>)serializer.Deserialize (reader, typeof(List<String>));
 
-		string val = o ["cmd-reserve-with-timeout"];
+		tubeStore.Clear();
+		foreach (String tube in tubes) {
+			tubeStore.AppendValues (tube);
+		}
 	}
 }
