@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using Newtonsoft.Json;
 using System.Text;
+using ServicesFE;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -15,6 +16,10 @@ public partial class MainWindow: Gtk.Window
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		this.Build ();
+
+		// Set up at least one of the server configurations
+		WebServiceConfigurations.Instance.Add (new WebServiceConfiguration ("Trinity", "https://trinity-prod-alt.abaqis.int", "8b436ea385a33c0605ebe5fcbcee4cfc"));
+
 		tubeStore = new ListStore (typeof(string));
 		cbTubes.Model = tubeStore;
 	}
@@ -30,25 +35,11 @@ public partial class MainWindow: Gtk.Window
 		Application.Quit ();
 	}
 
-
-
 	protected void OnRefreshTubes (object sender, EventArgs e)
 	{
-		// This line to trust the cert from trinity
-		ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-		WebClient client = new WebClient ();
-		client.Headers ["Content-type"] = "application/json";
-		client.Headers ["Authorization"] = "Token token=\"8b436ea385a33c0605ebe5fcbcee4cfc\"";
+		WebServiceClient wsc = new WebServiceClient();
 
-		byte[] data = client.DownloadData ("https://trinity-prod-alt.abaqis.int/beanstalk/tubes");
-
-		String s = Encoding.ASCII.GetString (data);
-
-		StringReader treader = new StringReader (s);
-		JsonReader reader = new JsonTextReader (treader);
-
-		JsonSerializer serializer = new JsonSerializer ();
-		List<String> tubes = (List<String>)serializer.Deserialize (reader, typeof(List<String>));
+		List<string> tubes = wsc.DoGetList ("beanstalk/tubes");
 
 		tubeStore.Clear();
 		foreach (String tube in tubes) {

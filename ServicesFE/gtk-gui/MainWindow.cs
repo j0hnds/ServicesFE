@@ -29,6 +29,8 @@ public partial class MainWindow
 	
 	private global::Gtk.TreeView treeview1;
 	
+	private global::Gtk.HBox hbox1;
+	
 	private global::Gtk.Label label1;
 	
 	private global::Gtk.Statusbar statusbar1;
@@ -122,6 +124,13 @@ public partial class MainWindow
 		this.vbox2.Add (this.GtkScrolledWindow);
 		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow]));
 		w8.Position = 1;
+		// Container child vbox2.Gtk.Box+BoxChild
+		this.hbox1 = new global::Gtk.HBox ();
+		this.hbox1.Name = "hbox1";
+		this.hbox1.Spacing = 6;
+		this.vbox2.Add (this.hbox1);
+		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox1]));
+		w9.Position = 2;
 		this.notebook1.Add (this.vbox2);
 		// Notebook tab
 		this.label1 = new global::Gtk.Label ();
@@ -130,17 +139,17 @@ public partial class MainWindow
 		this.notebook1.SetTabLabel (this.vbox2, this.label1);
 		this.label1.ShowAll ();
 		this.vbox1.Add (this.notebook1);
-		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
-		w10.Position = 1;
+		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
+		w11.Position = 1;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.statusbar1 = new global::Gtk.Statusbar ();
 		this.statusbar1.Name = "statusbar1";
 		this.statusbar1.Spacing = 6;
 		this.vbox1.Add (this.statusbar1);
-		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
-		w11.Position = 2;
-		w11.Expand = false;
-		w11.Fill = false;
+		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
+		w12.Position = 2;
+		w12.Expand = false;
+		w12.Fill = false;
 		this.Add (this.vbox1);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
