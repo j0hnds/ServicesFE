@@ -8,11 +8,13 @@ using System.Diagnostics.Contracts;
 using Newtonsoft.Json;
 using System.Text;
 using ServicesFE;
+using System.Collections.Specialized;
 
 public partial class MainWindow: Gtk.Window
 {
 	private ListStore tubeStore;
 	private ListStore statisticsStore;
+	private ListStore servicesStore;
 
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
@@ -41,6 +43,24 @@ public partial class MainWindow: Gtk.Window
 
 		statisticsStore = new ListStore (typeof(string), typeof(string));
 		statisticsTree.Model = statisticsStore;
+
+		TreeViewColumn svcNameCol = new TreeViewColumn ();
+		svcNameCol.Title = "Name";
+		CellRendererText svcNameCell = new CellRendererText ();
+		svcNameCol.PackStart (svcNameCell, true);
+		svcNameCol.AddAttribute (svcNameCell, "text", 1);
+
+		TreeViewColumn svcKeyCol = new TreeViewColumn ();
+		svcKeyCol.Title = "Key";
+		CellRendererText svcKeyCell = new CellRendererText ();
+		svcKeyCol.PackStart (svcKeyCell, true);
+		svcKeyCol.AddAttribute (svcKeyCell, "text", 2);
+
+		servicesTree.AppendColumn (svcNameCol);
+		servicesTree.AppendColumn (svcKeyCol);
+
+		servicesStore = new ListStore (typeof(int), typeof(string), typeof(string));
+		servicesTree.Model = servicesStore;
 
 	}
 
@@ -97,4 +117,91 @@ public partial class MainWindow: Gtk.Window
 		s = s.Replace('/', '_'); // 63rd char of encoding
 		return s;
 	}
+
+	protected void OnNewService (object sender, EventArgs e)
+	{
+		ServiceDialog dlg = new ServiceDialog ();
+		dlg.Modal = true;
+
+		int response = dlg.Run ();
+
+		if (response == (int)ResponseType.Ok) {
+			// Actually save the new service
+			string name = dlg.ServiceName;
+			string key = dlg.ServiceKey;
+
+			NameValueCollection nvc = new NameValueCollection ();
+			nvc.Add ("service[name]", name);
+			nvc.Add ("service[key]", key);
+
+			WebServiceClient wsc = new WebServiceClient ();
+			Dictionary<string,string> postResponse = wsc.DoPost ("services/services", nvc);
+		} 
+		dlg.Destroy ();
+	}
+
+	protected void OnEditService (object sender, EventArgs e)
+	{
+		TreeSelection selection = servicesTree.Selection;
+		TreeIter iter;
+		// selection.GetSelected(
+		if (selection.GetSelected (out iter)) {
+			int i = (int)servicesStore.GetValue (iter, 0);
+			string name = (string)servicesStore.GetValue (iter, 1);
+			string key = (string)servicesStore.GetValue (iter, 2);
+
+			ServiceDialog dlg = new ServiceDialog ();
+			dlg.Modal = true;
+
+			dlg.ServiceKey = key;
+			dlg.ServiceName = name;
+
+			int response = dlg.Run ();
+			if (response == (int)ResponseType.Ok) {
+				NameValueCollection nvc = new NameValueCollection ();
+				nvc.Add ("service[name]", dlg.ServiceName);
+				nvc.Add ("service[key]", dlg.ServiceKey);
+
+				WebServiceClient wsc = new WebServiceClient ();
+				Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + i, nvc);
+			}
+			dlg.Destroy ();
+		}
+	}
+		
+	protected void LoadServices()
+	{
+		servicesStore.Clear ();
+
+		WebServiceClient wsc = new WebServiceClient ();
+
+		List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
+
+		foreach (Dictionary<string,string> svc in services) {
+			servicesStore.AppendValues (Convert.ToInt32(svc["id"]), svc ["name"], svc ["key"]);
+		}
+	}
+
+	protected void OnSwitchPage (object o, SwitchPageArgs args)
+	{
+		switch (nbTabs.CurrentPage) {
+		case 0: // Beanstalk
+			// Nothing
+			break;
+		case 1: // Services
+			LoadServices ();
+			break;
+		}
+	}
+
+	protected void OnServiceActivated (object o, RowActivatedArgs args)
+	{
+		TreeSelection selection = servicesTree.Selection;
+		TreeIter iter;
+		if (selection.GetSelected (out iter)) {
+			int i = (int)servicesStore.GetValue (iter, 0);
+		}
+	}
+
+
 }

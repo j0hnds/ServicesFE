@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace ServicesFE
 {
@@ -47,6 +48,42 @@ namespace ServicesFE
 
 		}
 
+		public Dictionary<string,string>  DoPost(string uri, NameValueCollection parameters)
+		{
+			WebClient client = new WebClient();
+			PrepareHeaders(client, true);
+
+			byte[] data = client.UploadValues(BuildURL(uri), parameters);
+			JsonReader reader = BuildJsonReader (data);
+
+			JsonSerializer serializer = new JsonSerializer ();
+			return (Dictionary<string, string>)serializer.Deserialize (reader, typeof(Dictionary<string,string>));
+		}
+
+		public Dictionary<string,string>  DoPut(string uri, NameValueCollection parameters)
+		{
+			WebClient client = new WebClient();
+			PrepareHeaders(client, true);
+
+			byte[] data = client.UploadValues(BuildURL(uri), "PUT", parameters);
+			JsonReader reader = BuildJsonReader (data);
+
+			JsonSerializer serializer = new JsonSerializer ();
+			return (Dictionary<string, string>)serializer.Deserialize (reader, typeof(Dictionary<string,string>));
+		}
+
+		public Dictionary<string,string>  DoDelete(string uri, NameValueCollection parameters)
+		{
+			WebClient client = new WebClient();
+			PrepareHeaders(client);
+
+			byte[] data = client.UploadValues(BuildURL(uri), "DELETE", parameters);
+			JsonReader reader = BuildJsonReader (data);
+
+			JsonSerializer serializer = new JsonSerializer ();
+			return (Dictionary<string, string>)serializer.Deserialize (reader, typeof(Dictionary<string,string>));
+		}
+
 		public List<string> DoGetList(string uri)
 		{
 			byte[] data = DoGet (uri);
@@ -55,6 +92,16 @@ namespace ServicesFE
 
 			JsonSerializer serializer = new JsonSerializer ();
 			return (List<string>)serializer.Deserialize (reader, typeof(List<string>));
+		}
+
+		public List<Dictionary<string,string>> DoGetDictionaryList(string uri)
+		{
+			byte[] data = DoGet (uri);
+
+			JsonReader reader = BuildJsonReader (data);
+
+			JsonSerializer serializer = new JsonSerializer ();
+			return (List<Dictionary<string,string>>)serializer.Deserialize (reader, typeof(List<Dictionary<string,string>>));
 		}
 
 		public Dictionary<string,string> DoGetDictionary(string uri)
@@ -67,9 +114,12 @@ namespace ServicesFE
 			return (Dictionary<string, string>)serializer.Deserialize (reader, typeof(Dictionary<string,string>));
 		}
 
-		protected void PrepareHeaders(WebClient client)
+		protected void PrepareHeaders(WebClient client, bool postRequest=false)
 		{
-			client.Headers ["Content-type"] = "application/json";
+			if (!postRequest) {
+				client.Headers ["Content-Type"] = "application/json";
+			}
+			client.Headers ["Accept"] = "application/json";
 			client.Headers ["Authorization"] = "Token token=\"" + token + "\"";
 		}
 
