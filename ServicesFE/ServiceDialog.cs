@@ -20,16 +20,7 @@ namespace ServicesFE
 			get { return eServiceKey.Text; }
 			set { eServiceKey.Text = value; }
 		}
-
-//		protected void OnOK (object sender, EventArgs e)
-//		{
-//			throw new NotImplementedException ();
-//		}
-//
-//		protected void OnCancel (object sender, EventArgs e)
-//		{
-//			throw new NotImplementedException ();
-//		}
+			
 	}
 }
 

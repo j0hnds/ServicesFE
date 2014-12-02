@@ -77,6 +77,8 @@
     <Compile Include="WebServiceConfigurations.cs" />
     <Compile Include="ServiceDialog.cs" />
     <Compile Include="gtk-gui\ServicesFE.ServiceDialog.cs" />
+    <Compile Include="ThirdPartyDialog.cs" />
+    <Compile Include="gtk-gui\ServicesFE.ThirdPartyDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

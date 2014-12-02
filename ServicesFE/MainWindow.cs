@@ -15,6 +15,7 @@ public partial class MainWindow: Gtk.Window
 	private ListStore tubeStore;
 	private ListStore statisticsStore;
 	private ListStore servicesStore;
+	private ListStore thirdPartiesStore;
 
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
@@ -26,41 +27,11 @@ public partial class MainWindow: Gtk.Window
 		tubeStore = new ListStore (typeof(string));
 		cbTubes.Model = tubeStore;
 
-		TreeViewColumn statNameCol = new TreeViewColumn ();
-		statNameCol.Title = "Statistic";
-		CellRendererText statNameCell = new CellRendererText ();
-		statNameCol.PackStart (statNameCell, true);
-		statNameCol.AddAttribute (statNameCell, "text", 0);
+		SetupBeanstalkTreeView ();
 
-		TreeViewColumn statValueCol = new TreeViewColumn ();
-		statValueCol.Title = "Value";
-		CellRendererText statValueCell = new CellRendererText();
-		statValueCol.PackStart (statValueCell, true);
-		statValueCol.AddAttribute (statValueCell, "text", 1);
+		SetupServicesTreeView ();
 
-		statisticsTree.AppendColumn (statNameCol);
-		statisticsTree.AppendColumn (statValueCol);
-
-		statisticsStore = new ListStore (typeof(string), typeof(string));
-		statisticsTree.Model = statisticsStore;
-
-		TreeViewColumn svcNameCol = new TreeViewColumn ();
-		svcNameCol.Title = "Name";
-		CellRendererText svcNameCell = new CellRendererText ();
-		svcNameCol.PackStart (svcNameCell, true);
-		svcNameCol.AddAttribute (svcNameCell, "text", 1);
-
-		TreeViewColumn svcKeyCol = new TreeViewColumn ();
-		svcKeyCol.Title = "Key";
-		CellRendererText svcKeyCell = new CellRendererText ();
-		svcKeyCol.PackStart (svcKeyCell, true);
-		svcKeyCol.AddAttribute (svcKeyCell, "text", 2);
-
-		servicesTree.AppendColumn (svcNameCol);
-		servicesTree.AppendColumn (svcKeyCol);
-
-		servicesStore = new ListStore (typeof(int), typeof(string), typeof(string));
-		servicesTree.Model = servicesStore;
+		SetupThirdPartyTreeView ();
 
 	}
 
@@ -182,6 +153,19 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
+	protected void LoadThirdParties()
+	{
+		thirdPartiesStore.Clear ();
+
+		WebServiceClient wsc = new WebServiceClient ();
+
+		List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
+
+		foreach (Dictionary<string,string> tp in thirdParties) {
+			thirdPartiesStore.AppendValues (Convert.ToInt32(tp["id"]), tp ["name"], tp ["key"], tp ["contact_email"]);
+		}
+	}
+
 	protected void OnSwitchPage (object o, SwitchPageArgs args)
 	{
 		switch (nbTabs.CurrentPage) {
@@ -190,6 +174,9 @@ public partial class MainWindow: Gtk.Window
 			break;
 		case 1: // Services
 			LoadServices ();
+			break;
+		case 2: // Third Parties
+			LoadThirdParties ();
 			break;
 		}
 	}
@@ -203,5 +190,129 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
+	private void SetupBeanstalkTreeView()
+	{
+		TreeViewColumn statNameCol = new TreeViewColumn ();
+		statNameCol.Title = "Statistic";
+		CellRendererText statNameCell = new CellRendererText ();
+		statNameCol.PackStart (statNameCell, true);
+		statNameCol.AddAttribute (statNameCell, "text", 0);
 
+		TreeViewColumn statValueCol = new TreeViewColumn ();
+		statValueCol.Title = "Value";
+		CellRendererText statValueCell = new CellRendererText();
+		statValueCol.PackStart (statValueCell, true);
+		statValueCol.AddAttribute (statValueCell, "text", 1);
+
+		statisticsTree.AppendColumn (statNameCol);
+		statisticsTree.AppendColumn (statValueCol);
+
+		statisticsStore = new ListStore (typeof(string), typeof(string));
+		statisticsTree.Model = statisticsStore;
+	}
+
+	private void SetupServicesTreeView()
+	{
+		TreeViewColumn svcNameCol = new TreeViewColumn ();
+		svcNameCol.Title = "Name";
+		CellRendererText svcNameCell = new CellRendererText ();
+		svcNameCol.PackStart (svcNameCell, true);
+		svcNameCol.AddAttribute (svcNameCell, "text", 1);
+
+		TreeViewColumn svcKeyCol = new TreeViewColumn ();
+		svcKeyCol.Title = "Key";
+		CellRendererText svcKeyCell = new CellRendererText ();
+		svcKeyCol.PackStart (svcKeyCell, true);
+		svcKeyCol.AddAttribute (svcKeyCell, "text", 2);
+
+		servicesTree.AppendColumn (svcNameCol);
+		servicesTree.AppendColumn (svcKeyCol);
+
+		servicesStore = new ListStore (typeof(int), typeof(string), typeof(string));
+		servicesTree.Model = servicesStore;
+	}
+
+	private void SetupThirdPartyTreeView()
+	{
+		TreeViewColumn tpNameCol = new TreeViewColumn ();
+		tpNameCol.Title = "Name";
+		CellRendererText tpNameCell = new CellRendererText ();
+		tpNameCol.PackStart (tpNameCell, true);
+		tpNameCol.AddAttribute (tpNameCell, "text", 1);
+
+		TreeViewColumn tpKeyCol = new TreeViewColumn ();
+		tpKeyCol.Title = "Key";
+		CellRendererText tpKeyCell = new CellRendererText ();
+		tpKeyCol.PackStart (tpKeyCell, true);
+		tpKeyCol.AddAttribute (tpKeyCell, "text", 2);
+
+		TreeViewColumn tpEmailCol = new TreeViewColumn ();
+		tpEmailCol.Title = "Email";
+		CellRendererText tpEmailCell = new CellRendererText ();
+		tpEmailCol.PackStart (tpEmailCell, true);
+		tpEmailCol.AddAttribute (tpEmailCell, "text", 3);
+
+		thirdPartiesTree.AppendColumn (tpNameCol);
+		thirdPartiesTree.AppendColumn (tpKeyCol);
+		thirdPartiesTree.AppendColumn (tpEmailCol);
+
+		thirdPartiesStore = new ListStore (typeof(int), typeof(string), typeof(string), typeof(string));
+		thirdPartiesTree.Model = thirdPartiesStore;
+	}
+
+	protected void OnNewThirdParty (object sender, EventArgs e)
+	{
+		ThirdPartyDialog dlg = new ThirdPartyDialog ();
+		dlg.Modal = true;
+
+		int response = dlg.Run ();
+
+		if (response == (int)ResponseType.Ok) {
+			// Actually save the new service
+			string name = dlg.ThirdPartyName;
+			string key = dlg.ThirdPartyKey;
+			string email = dlg.ThirdPartyEmail;
+
+			NameValueCollection nvc = new NameValueCollection ();
+			nvc.Add ("third_party[name]", name);
+			nvc.Add ("third_party[key]", key);
+			nvc.Add ("third_party[contact_email]", email);
+
+			WebServiceClient wsc = new WebServiceClient ();
+			Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties", nvc);
+		} 
+		dlg.Destroy ();
+	}
+
+	protected void OnEditThirdParty (object sender, EventArgs e)
+	{
+		TreeSelection selection = thirdPartiesTree.Selection;
+		TreeIter iter;
+		// selection.GetSelected(
+		if (selection.GetSelected (out iter)) {
+			int i = (int)thirdPartiesStore.GetValue (iter, 0);
+			string name = (string)thirdPartiesStore.GetValue (iter, 1);
+			string key = (string)thirdPartiesStore.GetValue (iter, 2);
+			string email = (string)thirdPartiesStore.GetValue (iter, 3);
+
+			ThirdPartyDialog dlg = new ThirdPartyDialog ();
+			dlg.Modal = true;
+
+			dlg.ThirdPartyKey = key;
+			dlg.ThirdPartyName = name;
+			dlg.ThirdPartyEmail = email;
+
+			int response = dlg.Run ();
+			if (response == (int)ResponseType.Ok) {
+				NameValueCollection nvc = new NameValueCollection ();
+				nvc.Add ("third_party[name]", dlg.ThirdPartyName);
+				nvc.Add ("third_party[key]", dlg.ThirdPartyKey);
+				nvc.Add ("third_party[contact_email]", dlg.ThirdPartyEmail);
+
+				WebServiceClient wsc = new WebServiceClient ();
+				Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + i, nvc);
+			}
+			dlg.Destroy ();
+		}
+	}
 }
