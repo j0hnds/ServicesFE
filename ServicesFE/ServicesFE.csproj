@@ -60,6 +60,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -79,6 +80,9 @@
     <Compile Include="gtk-gui\ServicesFE.ServiceDialog.cs" />
     <Compile Include="ThirdPartyDialog.cs" />
     <Compile Include="gtk-gui\ServicesFE.ThirdPartyDialog.cs" />
+    <Compile Include="PublicKeyDialog.cs" />
+    <Compile Include="gtk-gui\ServicesFE.PublicKeyDialog.cs" />
+    <Compile Include="UploadFile.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

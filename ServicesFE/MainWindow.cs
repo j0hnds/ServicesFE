@@ -16,12 +16,14 @@ public partial class MainWindow: Gtk.Window
 	private ListStore statisticsStore;
 	private ListStore servicesStore;
 	private ListStore thirdPartiesStore;
+	private ListStore publicKeysStore;
 
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		this.Build ();
 
 		// Set up at least one of the server configurations
+		// WebServiceConfigurations.Instance.Add (new WebServiceConfiguration ("Local", "http://localhost:8080", "8b436ea385a33c0605ebe5fcbcee4cfc"));
 		WebServiceConfigurations.Instance.Add (new WebServiceConfiguration ("Trinity", "https://trinity-prod-alt.abaqis.int", "8b436ea385a33c0605ebe5fcbcee4cfc"));
 
 		tubeStore = new ListStore (typeof(string));
@@ -32,6 +34,8 @@ public partial class MainWindow: Gtk.Window
 		SetupServicesTreeView ();
 
 		SetupThirdPartyTreeView ();
+
+		SetupPublicKeysTreeView ();
 
 	}
 
@@ -166,6 +170,19 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
+	protected void LoadPublicKeys()
+	{
+		publicKeysStore.Clear ();
+
+		WebServiceClient wsc = new WebServiceClient ();
+
+		List<Dictionary<string,string>> publicKeys = wsc.DoGetDictionaryList ("services/public_keys");
+
+		foreach (Dictionary<string,string> pk in publicKeys) {
+			publicKeysStore.AppendValues (Convert.ToInt32(pk["id"]), pk ["name"], pk ["valid_until"]);
+		}
+	}
+
 	protected void OnSwitchPage (object o, SwitchPageArgs args)
 	{
 		switch (nbTabs.CurrentPage) {
@@ -177,6 +194,10 @@ public partial class MainWindow: Gtk.Window
 			break;
 		case 2: // Third Parties
 			LoadThirdParties ();
+			break;
+
+		case 3: // Public keys
+			LoadPublicKeys ();
 			break;
 		}
 	}
@@ -260,6 +281,27 @@ public partial class MainWindow: Gtk.Window
 		thirdPartiesTree.Model = thirdPartiesStore;
 	}
 
+	private void SetupPublicKeysTreeView()
+	{
+		TreeViewColumn pkNameCol = new TreeViewColumn ();
+		pkNameCol.Title = "Name";
+		CellRendererText pkNameCell = new CellRendererText ();
+		pkNameCol.PackStart (pkNameCell, true);
+		pkNameCol.AddAttribute (pkNameCell, "text", 1);
+
+		TreeViewColumn pkValidUntilCol = new TreeViewColumn ();
+		pkValidUntilCol.Title = "Valid Until";
+		CellRendererText pkValidUntilCell = new CellRendererText ();
+		pkValidUntilCol.PackStart (pkValidUntilCell, true);
+		pkValidUntilCol.AddAttribute (pkValidUntilCell, "text", 2);
+
+		publicKeysTree.AppendColumn (pkNameCol);
+		publicKeysTree.AppendColumn (pkValidUntilCol);
+
+		publicKeysStore = new ListStore (typeof(int), typeof(string), typeof(string));
+		publicKeysTree.Model = publicKeysStore;
+	}
+
 	protected void OnNewThirdParty (object sender, EventArgs e)
 	{
 		ThirdPartyDialog dlg = new ThirdPartyDialog ();
@@ -313,6 +355,84 @@ public partial class MainWindow: Gtk.Window
 				Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + i, nvc);
 			}
 			dlg.Destroy ();
+		}
+	}
+
+	protected void OnNewPublicKey (object sender, EventArgs e)
+	{
+		PublicKeyDialog dlg = new PublicKeyDialog ();
+		dlg.Modal = true;
+
+		int response = dlg.Run ();
+
+		if (response == (int)ResponseType.Ok) {
+			// Actually save the new service
+			string name = dlg.PublicKeyName;
+			DateTime validUntil = dlg.PublicKeyValidUntil;
+			string keyPath = dlg.PublicKeyFile;
+
+			NameValueCollection nvc = new NameValueCollection ();
+			nvc.Add ("public_key[name]", name);
+			nvc.Add ("public_key[valid_until]", validUntil.ToString ());
+
+			WebServiceClient wsc = new WebServiceClient ();
+			Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys", "POST", "public_key[key_file]", keyPath, nvc);
+		} 
+		dlg.Destroy ();
+	}
+
+	protected void OnEditPublicKey (object sender, EventArgs e)
+	{
+		TreeSelection selection = publicKeysTree.Selection;
+		TreeIter iter;
+		// selection.GetSelected(
+		if (selection.GetSelected (out iter)) {
+			int i = (int)publicKeysStore.GetValue (iter, 0);
+			string name = (string)publicKeysStore.GetValue (iter, 1);
+			DateTime validUntil = DateTime.Parse((string)publicKeysStore.GetValue (iter, 2));
+
+			PublicKeyDialog dlg = new PublicKeyDialog ();
+			dlg.Modal = true;
+
+			dlg.PublicKeyName = name;
+			dlg.PublicKeyValidUntil = validUntil;
+
+			int response = dlg.Run ();
+			if (response == (int)ResponseType.Ok) {
+				NameValueCollection nvc = new NameValueCollection ();
+				nvc.Add ("public_key[name]", dlg.PublicKeyName);
+				nvc.Add ("public_key[valid_until]", dlg.PublicKeyValidUntil.ToString());
+				string keyPath = dlg.PublicKeyFile;
+				WebServiceClient wsc = new WebServiceClient ();
+				Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys/" + i, "PUT", "public_key[key_file]", keyPath, nvc);
+			}
+			dlg.Destroy ();
+		}
+	}
+
+	protected void OnDeletePublicKey (object sender, EventArgs e)
+	{
+		TreeSelection selection = publicKeysTree.Selection;
+		TreeIter iter;
+		// selection.GetSelected(
+		if (selection.GetSelected (out iter)) {
+			int i = (int)publicKeysStore.GetValue (iter, 0);
+			string name = (string)publicKeysStore.GetValue (iter, 1);
+			MessageDialog md = new MessageDialog (
+				this, 
+				DialogFlags.DestroyWithParent, 
+				MessageType.Question, 
+				ButtonsType.YesNo, 
+				"Are you sure you want to delete public key '{0}'", 
+				name);
+			int response = md.Run ();
+			md.Destroy ();
+			if ((int)ResponseType.No == response) {
+				return;
+			}
+
+			WebServiceClient wsc = new WebServiceClient ();
+			Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection());
 		}
 	}
 }
