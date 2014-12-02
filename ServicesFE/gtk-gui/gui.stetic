@@ -206,6 +206,7 @@
                   <widget class="Gtk.VBox" id="vbox3">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
+                    <property name="BorderWidth">6</property>
                     <child>
                       <widget class="Gtk.Button" id="button3">
                         <property name="MemberName" />
