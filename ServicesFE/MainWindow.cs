@@ -17,6 +17,9 @@ public partial class MainWindow: Gtk.Window
 	private ListStore servicesStore;
 	private ListStore thirdPartiesStore;
 	private ListStore publicKeysStore;
+	private ListStore sdThirdPartiesStore;
+	private ListStore sdServicesStore;
+	private ListStore serviceDefinitionsStore;
 
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
@@ -36,6 +39,16 @@ public partial class MainWindow: Gtk.Window
 		SetupThirdPartyTreeView ();
 
 		SetupPublicKeysTreeView ();
+
+		SetupServicesTreeView ();
+
+		sdThirdPartiesStore = new ListStore (typeof(string), typeof(int));
+		cbThirdParties.Model = sdThirdPartiesStore;
+
+		sdServicesStore = new ListStore (typeof(string), typeof(int));
+		cbServices.Model = sdServicesStore;
+
+		SetupServiceDefinitionsTreeView ();
 
 	}
 
@@ -157,6 +170,49 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
+	protected void LoadServiceDefinitions(string key, string id)
+	{
+		serviceDefinitionsStore.Clear ();
+
+		string uri = null;
+		if (key == "service_id") {
+			uri = String.Format ("services/services/{0}/service_definitions", id);
+		} else {
+			uri = String.Format ("services/third_parties/{0}/service_definitions", id);
+		}
+		WebServiceClient wsc = new WebServiceClient ();
+		List<Dictionary<string,string>> serviceDefinitions = wsc.DoGetDictionaryList (uri);
+		foreach (Dictionary<string,string> svcDef in serviceDefinitions) {
+			serviceDefinitionsStore.AppendValues (
+				Convert.ToInt32(DictValue(svcDef,"id")), 
+				DictValue(svcDef, "hostname"), 
+				DictValue(svcDef, "port"), 
+				DictValue(svcDef, "base_uri"), 
+				DictValue(svcDef, "username"), 
+				DictValue(svcDef, "service_class"), 
+				DictValue(svcDef, "password"), 
+				DictValue(svcDef, "token"));
+		}
+	}
+
+	private string DictValue(Dictionary<string,string> dict, string key) 
+	{
+		return dict.ContainsKey (key) ? dict [key] : "";
+	}
+
+	protected void LoadServicesCombo()
+	{
+		sdServicesStore.Clear ();
+
+		WebServiceClient wsc = new WebServiceClient ();
+
+		List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
+
+		foreach (Dictionary<string,string> svc in services) {
+			sdServicesStore.AppendValues (svc ["name"], Convert.ToInt32(svc["id"]));
+		}
+	}
+
 	protected void LoadThirdParties()
 	{
 		thirdPartiesStore.Clear ();
@@ -167,6 +223,19 @@ public partial class MainWindow: Gtk.Window
 
 		foreach (Dictionary<string,string> tp in thirdParties) {
 			thirdPartiesStore.AppendValues (Convert.ToInt32(tp["id"]), tp ["name"], tp ["key"], tp ["contact_email"]);
+		}
+	}
+
+	protected void LoadThirdPartiesCombo()
+	{
+		sdThirdPartiesStore.Clear ();
+
+		WebServiceClient wsc = new WebServiceClient ();
+
+		List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
+
+		foreach (Dictionary<string,string> tp in thirdParties) {
+			sdThirdPartiesStore.AppendValues (tp ["name"], Convert.ToInt32(tp["id"]));
 		}
 	}
 
@@ -198,6 +267,11 @@ public partial class MainWindow: Gtk.Window
 
 		case 3: // Public keys
 			LoadPublicKeys ();
+			break;
+
+		case 4: // Service Definitions
+			LoadThirdPartiesCombo ();
+			LoadServicesCombo ();
 			break;
 		}
 	}
@@ -300,6 +374,62 @@ public partial class MainWindow: Gtk.Window
 
 		publicKeysStore = new ListStore (typeof(int), typeof(string), typeof(string));
 		publicKeysTree.Model = publicKeysStore;
+	}
+
+	private void SetupServiceDefinitionsTreeView()
+	{
+		TreeViewColumn sdHostnameCol = new TreeViewColumn ();
+		sdHostnameCol.Title = "Host Name";
+		CellRendererText sdHostnameCell = new CellRendererText ();
+		sdHostnameCol.PackStart (sdHostnameCell, true);
+		sdHostnameCol.AddAttribute (sdHostnameCell, "text", 1);
+
+		TreeViewColumn sdPortCol = new TreeViewColumn ();
+		sdPortCol.Title = "Port";
+		CellRendererText sdPortCell = new CellRendererText ();
+		sdPortCol.PackStart (sdPortCell, true);
+		sdPortCol.AddAttribute (sdPortCell, "text", 2);
+
+		TreeViewColumn sdBaseUriCol = new TreeViewColumn ();
+		sdBaseUriCol.Title = "Base URI";
+		CellRendererText sdBaseUriCell = new CellRendererText ();
+		sdBaseUriCol.PackStart (sdBaseUriCell, true);
+		sdBaseUriCol.AddAttribute (sdBaseUriCell, "text", 3);
+
+		TreeViewColumn sdUserNameCol = new TreeViewColumn ();
+		sdUserNameCol.Title = "User Name";
+		CellRendererText sdUserNameCell = new CellRendererText ();
+		sdUserNameCol.PackStart (sdUserNameCell, true);
+		sdUserNameCol.AddAttribute (sdUserNameCell, "text", 4);
+
+		TreeViewColumn sdServiceClassCol = new TreeViewColumn ();
+		sdServiceClassCol.Title = "Service Class";
+		CellRendererText sdServiceClassCell = new CellRendererText ();
+		sdServiceClassCol.PackStart (sdServiceClassCell, true);
+		sdServiceClassCol.AddAttribute (sdServiceClassCell, "text", 5);
+
+		TreeViewColumn sdPasswordCol = new TreeViewColumn ();
+		sdPasswordCol.Title = "Password";
+		CellRendererText sdPasswordCell = new CellRendererText ();
+		sdPasswordCol.PackStart (sdPasswordCell, true);
+		sdPasswordCol.AddAttribute (sdPasswordCell, "text", 6);
+
+		TreeViewColumn sdTokenCol = new TreeViewColumn ();
+		sdTokenCol.Title = "Token";
+		CellRendererText sdTokenCell = new CellRendererText ();
+		sdTokenCol.PackStart (sdTokenCell, true);
+		sdTokenCol.AddAttribute (sdTokenCell, "text", 7);
+
+		serviceDefinitionsTree.AppendColumn (sdHostnameCol);
+		serviceDefinitionsTree.AppendColumn (sdPortCol);
+		serviceDefinitionsTree.AppendColumn (sdBaseUriCol);
+		serviceDefinitionsTree.AppendColumn (sdUserNameCol);
+		serviceDefinitionsTree.AppendColumn (sdServiceClassCol);
+		serviceDefinitionsTree.AppendColumn (sdPasswordCol);
+		serviceDefinitionsTree.AppendColumn (sdTokenCol);
+
+		serviceDefinitionsStore = new ListStore (typeof(int), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string));
+		serviceDefinitionsTree.Model = serviceDefinitionsStore;
 	}
 
 	protected void OnNewThirdParty (object sender, EventArgs e)
@@ -433,6 +563,42 @@ public partial class MainWindow: Gtk.Window
 
 			WebServiceClient wsc = new WebServiceClient ();
 			Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection());
+		}
+	}
+
+	protected void OnNewServiceDefinition (object sender, EventArgs e)
+	{
+		throw new NotImplementedException ();
+	}
+
+	protected void OnEditServiceDefinition (object sender, EventArgs e)
+	{
+		throw new NotImplementedException ();
+	}
+
+	protected void OnDeleteServiceDefinition (object sender, EventArgs e)
+	{
+		throw new NotImplementedException ();
+	}
+
+	protected void OnSdServiceChanged (object sender, EventArgs e)
+	{
+		// throw new NotImplementedException ();
+		// int svcIdx = cbServices.Active;
+		TreeIter iter;
+		if (cbServices.GetActiveIter (out iter)) {
+			int serviceId = (int)sdServicesStore.GetValue (iter, 1);
+			LoadServiceDefinitions ("service_id", serviceId.ToString());
+		}
+	}
+
+	protected void OnSdThirdPartyChanged (object sender, EventArgs e)
+	{
+		// throw new NotImplementedException ();
+		TreeIter iter;
+		if (cbThirdParties.GetActiveIter (out iter)) {
+			int thirdPartyId = (int)sdThirdPartiesStore.GetValue (iter, 1);
+			LoadServiceDefinitions ("third_party_id", thirdPartyId.ToString());
 		}
 	}
 }

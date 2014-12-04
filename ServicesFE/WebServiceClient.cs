@@ -43,10 +43,15 @@ namespace ServicesFE
 
 		public byte[] DoGet(string uri) 
 		{
+			return DoGet (uri, new NameValueCollection ());
+		}
+
+		public byte[] DoGet(string uri, NameValueCollection parameters) 
+		{
 			WebClient client = new WebClient ();
 			PrepareHeaders (client);
 
-			return client.DownloadData (BuildURL (uri));
+			return client.DownloadData (BuildURL (uri, parameters));
 
 		}
 
@@ -115,14 +120,19 @@ namespace ServicesFE
 			return (List<string>)serializer.Deserialize (reader, typeof(List<string>));
 		}
 
-		public List<Dictionary<string,string>> DoGetDictionaryList(string uri)
+		public List<Dictionary<string,string>> DoGetDictionaryList(string uri, NameValueCollection parameters)
 		{
-			byte[] data = DoGet (uri);
+			byte[] data = DoGet (uri, parameters);
 
 			JsonReader reader = BuildJsonReader (data);
 
 			JsonSerializer serializer = new JsonSerializer ();
 			return (List<Dictionary<string,string>>)serializer.Deserialize (reader, typeof(List<Dictionary<string,string>>));
+		}
+
+		public List<Dictionary<string,string>> DoGetDictionaryList(string uri)
+		{
+			return DoGetDictionaryList (uri, new NameValueCollection ());
 		}
 
 		public Dictionary<string,string> DoGetDictionary(string uri)
@@ -146,7 +156,26 @@ namespace ServicesFE
 
 		protected string BuildURL(string uri)
 		{
-			return baseUri + "/" + uri;
+			return BuildURL (uri, new NameValueCollection ());
+		}
+
+		protected string BuildURL(string uri, NameValueCollection parameters)
+		{
+			StringBuilder sb = new StringBuilder ();
+			sb.AppendFormat ("{0}/{1}", baseUri, uri);
+
+			if (parameters.Count > 0) {
+				sb.Append ("?");
+				bool first = true;
+				foreach (string param in parameters.Keys) {
+					if (!first) {
+						sb.Append ("&");
+					}
+					sb.AppendFormat ("{0}={1}", param, parameters [param]);
+					first = false;
+				}
+			}
+			return sb.ToString ();
 		}
 
 		protected JsonReader BuildJsonReader(byte[] data)
