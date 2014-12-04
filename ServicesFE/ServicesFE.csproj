@@ -83,6 +83,8 @@
     <Compile Include="PublicKeyDialog.cs" />
     <Compile Include="gtk-gui\ServicesFE.PublicKeyDialog.cs" />
     <Compile Include="UploadFile.cs" />
+    <Compile Include="ServiceDefinitionDialog.cs" />
+    <Compile Include="gtk-gui\ServicesFE.ServiceDefinitionDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

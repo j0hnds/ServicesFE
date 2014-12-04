@@ -568,7 +568,40 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnNewServiceDefinition (object sender, EventArgs e)
 	{
-		throw new NotImplementedException ();
+		ServiceDefinitionDialog dlg = new ServiceDefinitionDialog ();
+		dlg.Modal = true;
+		dlg.Services = sdServicesStore;
+		dlg.ThirdParties = sdThirdPartiesStore;
+
+		int response = dlg.Run ();
+
+		if (response == (int)ResponseType.Ok) {
+			// Actually save the new service definition
+			int serviceId = dlg.ServiceId;
+			int thirdPartyId = dlg.ThirdPartyId;
+			string hostname = dlg.HostName;
+			string port = dlg.Port;
+			string baseUri = dlg.BaseURI;
+			string userName = dlg.UserName;
+			string serviceClass = dlg.ServiceClass;
+			string password = dlg.Password;
+			string token = dlg.Token;
+
+			NameValueCollection nvc = new NameValueCollection ();
+			nvc.Add ("service_definition[service_id]", serviceId.ToString());
+			nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString());
+			nvc.Add ("service_definition[hostname]", hostname);
+			nvc.Add ("service_definition[port]", port);
+			nvc.Add ("service_definition[base_uri]", baseUri);
+			nvc.Add ("service_definition[username]", userName);
+			nvc.Add ("service_definition[service_class]", serviceClass);
+			nvc.Add ("credential[password]", password);
+			nvc.Add ("credential[token]", token);
+
+			WebServiceClient wsc = new WebServiceClient ();
+			Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties/" + thirdPartyId + "/service_definitions", nvc);
+		} 
+		dlg.Destroy ();
 	}
 
 	protected void OnEditServiceDefinition (object sender, EventArgs e)
