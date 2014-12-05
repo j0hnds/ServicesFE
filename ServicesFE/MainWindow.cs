@@ -606,26 +606,16 @@ public partial class MainWindow: Gtk.Window
 		if (selection.GetSelected (out iter)) {
 			int i = (int)publicKeysStore.GetValue (iter, 0);
 			string name = (string)publicKeysStore.GetValue (iter, 1);
-			MessageDialog md = new MessageDialog (
-				                   this, 
-				                   DialogFlags.DestroyWithParent, 
-				                   MessageType.Question, 
-				                   ButtonsType.YesNo, 
-				                   "Are you sure you want to delete public key '{0}'", 
-				                   name);
-			int response = md.Run ();
-			md.Destroy ();
-			if ((int)ResponseType.No == response) {
-				return;
-			}
-
-			WebServiceClient wsc = new WebServiceClient ();
-			try {
-				Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection ());
-				ShowMessage (postResponse);
-			} catch (WebException ex) {
-				ShowMessage (ex);
-			}
+			ConfirmIt (string.Format ("Are you sure you want to delete public key '{0}'?", 
+				name), () => {
+				WebServiceClient wsc = new WebServiceClient ();
+				try {
+					Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection ());
+					ShowMessage (postResponse);
+				} catch (WebException ex) {
+					ShowMessage (ex);
+				}
+			});
 		}
 	}
 
@@ -739,26 +729,18 @@ public partial class MainWindow: Gtk.Window
 			int thirdPartyId = (int)serviceDefinitionsStore.GetValue (iter, 9);
 
 			string hostname = (string)serviceDefinitionsStore.GetValue (iter, 1);
-			MessageDialog md = new MessageDialog (
-				                   this, 
-				                   DialogFlags.DestroyWithParent, 
-				                   MessageType.Question, 
-				                   ButtonsType.YesNo, 
-				                   "Are you sure you want to delete public key '{0}'", 
-				                   hostname);
-			int response = md.Run ();
-			md.Destroy ();
-			if ((int)ResponseType.No == response) {
-				return;
-			}
-
-			WebServiceClient wsc = new WebServiceClient ();
-			try {
-				Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, new NameValueCollection ());
-				ShowMessage (postResponse);
-			} catch (WebException ex) {
-				ShowMessage (ex);
-			}
+			ConfirmIt (string.Format ("Are you sure you want to delete service definition '{0}'?", 
+				hostname),
+				() => {
+					WebServiceClient wsc = new WebServiceClient ();
+					try {
+						Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, new NameValueCollection ());
+						ShowMessage (postResponse);
+					} catch (WebException ex) {
+						ShowMessage (ex);
+					}
+				
+				});
 		}
 	}
 
@@ -833,5 +815,22 @@ public partial class MainWindow: Gtk.Window
 			                   message);
 		md.Run ();
 		md.Destroy ();
+	}
+
+	private void ConfirmIt(string message, System.Action confirmedAction)
+	{
+		MessageDialog md = new MessageDialog (
+			this, 
+			DialogFlags.DestroyWithParent, 
+			MessageType.Question, 
+			ButtonsType.YesNo, 
+			message);
+
+		int response = md.Run ();
+		md.Destroy ();
+
+		if ((int)ResponseType.Yes == response) {
+			confirmedAction ();
+		}
 	}
 }
