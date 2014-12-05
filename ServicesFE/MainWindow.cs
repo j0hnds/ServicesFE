@@ -191,7 +191,9 @@ public partial class MainWindow: Gtk.Window
 				DictValue(svcDef, "username"), 
 				DictValue(svcDef, "service_class"), 
 				DictValue(svcDef, "password"), 
-				DictValue(svcDef, "token"));
+				DictValue(svcDef, "token"),
+				Convert.ToInt32(DictValue(svcDef, "service_id")),
+				Convert.ToInt32(DictValue(svcDef, "third_party_id")));
 		}
 	}
 
@@ -428,7 +430,7 @@ public partial class MainWindow: Gtk.Window
 		serviceDefinitionsTree.AppendColumn (sdPasswordCol);
 		serviceDefinitionsTree.AppendColumn (sdTokenCol);
 
-		serviceDefinitionsStore = new ListStore (typeof(int), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string));
+		serviceDefinitionsStore = new ListStore (typeof(int), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(int), typeof(int));
 		serviceDefinitionsTree.Model = serviceDefinitionsStore;
 	}
 
@@ -606,12 +608,82 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnEditServiceDefinition (object sender, EventArgs e)
 	{
-		throw new NotImplementedException ();
+		TreeSelection selection = serviceDefinitionsTree.Selection;
+		TreeIter iter;
+		if (selection.GetSelected (out iter)) {
+			int i = (int)serviceDefinitionsStore.GetValue (iter, 0);
+
+			ServiceDefinitionDialog dlg = new ServiceDefinitionDialog ();
+			dlg.Modal = true;
+			dlg.Services = sdServicesStore;
+			dlg.ThirdParties = sdThirdPartiesStore;
+			dlg.HostName = (string)serviceDefinitionsStore.GetValue(iter, 1);
+			dlg.Port = (string)serviceDefinitionsStore.GetValue(iter, 2);
+			dlg.BaseURI = (string)serviceDefinitionsStore.GetValue(iter, 3);
+			dlg.UserName = (string)serviceDefinitionsStore.GetValue (iter, 4);
+			dlg.ServiceClass = (string)serviceDefinitionsStore.GetValue (iter, 5);
+			dlg.Password = (string)serviceDefinitionsStore.GetValue (iter, 6);
+			dlg.Token = (string)serviceDefinitionsStore.GetValue (iter, 7);
+			dlg.ServiceId = (int)serviceDefinitionsStore.GetValue (iter, 8);
+			dlg.ThirdPartyId = (int)serviceDefinitionsStore.GetValue(iter, 9);
+
+			int response = dlg.Run ();
+
+			if (response == (int)ResponseType.Ok) {
+				// Actually save the new service definition
+				int serviceId = dlg.ServiceId;
+				int thirdPartyId = dlg.ThirdPartyId;
+				string hostname = dlg.HostName;
+				string port = dlg.Port;
+				string baseUri = dlg.BaseURI;
+				string userName = dlg.UserName;
+				string serviceClass = dlg.ServiceClass;
+				string password = dlg.Password;
+				string token = dlg.Token;
+
+				NameValueCollection nvc = new NameValueCollection ();
+				nvc.Add ("service_definition[service_id]", serviceId.ToString());
+				nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString());
+				nvc.Add ("service_definition[hostname]", hostname);
+				nvc.Add ("service_definition[port]", port);
+				nvc.Add ("service_definition[base_uri]", baseUri);
+				nvc.Add ("service_definition[username]", userName);
+				nvc.Add ("service_definition[service_class]", serviceClass);
+				nvc.Add ("credential[password]", password);
+				nvc.Add ("credential[token]", token);
+
+				WebServiceClient wsc = new WebServiceClient ();
+				Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, nvc);
+			} 
+			dlg.Destroy ();
+		}
 	}
 
 	protected void OnDeleteServiceDefinition (object sender, EventArgs e)
 	{
-		throw new NotImplementedException ();
+		TreeSelection selection = serviceDefinitionsTree.Selection;
+		TreeIter iter;
+		if (selection.GetSelected (out iter)) {
+			int i = (int)serviceDefinitionsStore.GetValue (iter, 0);
+			int thirdPartyId = (int)serviceDefinitionsStore.GetValue(iter, 9);
+
+			string hostname = (string)serviceDefinitionsStore.GetValue (iter, 1);
+			MessageDialog md = new MessageDialog (
+				this, 
+				DialogFlags.DestroyWithParent, 
+				MessageType.Question, 
+				ButtonsType.YesNo, 
+				"Are you sure you want to delete public key '{0}'", 
+				hostname);
+			int response = md.Run ();
+			md.Destroy ();
+			if ((int)ResponseType.No == response) {
+				return;
+			}
+
+			WebServiceClient wsc = new WebServiceClient ();
+			Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, new NameValueCollection());
+		}
 	}
 
 	protected void OnSdServiceChanged (object sender, EventArgs e)

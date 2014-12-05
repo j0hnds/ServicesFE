@@ -564,14 +564,8 @@ public partial class MainWindow
 		this.nbTabs.SwitchPage += new global::Gtk.SwitchPageHandler (this.OnSwitchPage);
 		this.button1.Clicked += new global::System.EventHandler (this.OnRefreshTubes);
 		this.button2.Clicked += new global::System.EventHandler (this.OnGetStatistics);
-		this.servicesTree.RowActivated += new global::Gtk.RowActivatedHandler (this.OnServiceActivated);
 		this.button3.Clicked += new global::System.EventHandler (this.OnNewService);
 		this.button4.Clicked += new global::System.EventHandler (this.OnEditService);
-		this.button13.Clicked += new global::System.EventHandler (this.OnNewThirdParty);
-		this.button14.Clicked += new global::System.EventHandler (this.OnEditThirdParty);
-		this.button199.Clicked += new global::System.EventHandler (this.OnNewPublicKey);
-		this.button200.Clicked += new global::System.EventHandler (this.OnEditPublicKey);
-		this.button201.Clicked += new global::System.EventHandler (this.OnDeletePublicKey);
 		this.cbThirdParties.Changed += new global::System.EventHandler (this.OnSdThirdPartyChanged);
 		this.cbServices.Changed += new global::System.EventHandler (this.OnSdServiceChanged);
 		this.button313.Clicked += new global::System.EventHandler (this.OnNewServiceDefinition);
