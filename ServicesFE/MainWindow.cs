@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Text;
 using ServicesFE;
 using System.Collections.Specialized;
+using System.Text.RegularExpressions;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -65,36 +66,41 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnRefreshTubes (object sender, EventArgs e)
 	{
-		WebServiceClient wsc = new WebServiceClient();
+		WebServiceClient wsc = new WebServiceClient ();
 
-		List<string> tubes = wsc.DoGetList ("beanstalk/tubes");
+		try {
+			List<string> tubes = wsc.DoGetList ("beanstalk/tubes");
 
-		tubeStore.Clear();
-		foreach (String tube in tubes) {
-			tubeStore.AppendValues (tube);
+			tubeStore.Clear ();
+			foreach (String tube in tubes) {
+				tubeStore.AppendValues (tube);
+			}
+		} catch (WebException ex) {
+			ShowMessage (ex);
 		}
 	}
 
 	protected void OnGetStatistics (object sender, EventArgs e)
 	{
-		Dictionary<string,string> statistics = null;
-
-		WebServiceClient wsc = new WebServiceClient();
-
+		StringBuilder uri = new StringBuilder ("beanstalk");
 		// Is there a tube selected?
 		string selectedTube = cbTubes.ActiveText;
 		if (selectedTube != null) {
-			string encodedTube = base64urlencode (Encoding.ASCII.GetBytes(selectedTube));
-			statistics = wsc.DoGetDictionary ("beanstalk/tubes/" + encodedTube);
-		} else {
-			statistics = wsc.DoGetDictionary ("beanstalk");
+			string encodedTube = base64urlencode (Encoding.ASCII.GetBytes (selectedTube));
+			uri.AppendFormat ("/tubes/{0}", encodedTube);
 		}
 
-		statisticsStore.Clear ();
-		foreach (string key in statistics.Keys) {
-			statisticsStore.AppendValues (key, statistics [key]);
-		}
+		WebServiceClient wsc = new WebServiceClient ();
+		try {
+			Dictionary<string,string> statistics = wsc.DoGetDictionary (uri.ToString ());
 
+			statisticsStore.Clear ();
+			foreach (string key in statistics.Keys) {
+				statisticsStore.AppendValues (key, statistics [key]);
+			}
+		} catch (WebException ex) {
+			ShowMessage (ex);
+		}
 	}
 
 	static string base64urlencode(byte [] arg)
@@ -123,7 +129,12 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("service[key]", key);
 
 			WebServiceClient wsc = new WebServiceClient ();
-			Dictionary<string,string> postResponse = wsc.DoPost ("services/services", nvc);
+			try {
+				Dictionary<string,string> postResponse = wsc.DoPost ("services/services", nvc);
+				ShowMessage (postResponse);
+			} catch (WebException ex) {
+				ShowMessage (ex);
+			}
 		} 
 		dlg.Destroy ();
 	}
@@ -132,7 +143,6 @@ public partial class MainWindow: Gtk.Window
 	{
 		TreeSelection selection = servicesTree.Selection;
 		TreeIter iter;
-		// selection.GetSelected(
 		if (selection.GetSelected (out iter)) {
 			int i = (int)servicesStore.GetValue (iter, 0);
 			string name = (string)servicesStore.GetValue (iter, 1);
@@ -151,36 +161,35 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("service[key]", dlg.ServiceKey);
 
 				WebServiceClient wsc = new WebServiceClient ();
-				Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + 9000, nvc);
-				// Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + i, nvc);
-				string rsp = ProcessResponse(postResponse);
-				MessageDialog md = new MessageDialog (
-					this, 
-					DialogFlags.DestroyWithParent, 
-					MessageType.Info, 
-					ButtonsType.Ok, 
-					rsp);
-				md.Run ();
-				md.Destroy ();
+				try {
+					Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + i, nvc);
+					ShowMessage (postResponse);
+				} catch (WebException ex) {
+					ShowMessage (ex);
+				}
 			}
 			dlg.Destroy ();
 		}
 	}
 		
-	protected void LoadServices()
+	protected void LoadServices ()
 	{
 		servicesStore.Clear ();
 
 		WebServiceClient wsc = new WebServiceClient ();
 
-		List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
+		try {
+			List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
 
-		foreach (Dictionary<string,string> svc in services) {
-			servicesStore.AppendValues (Convert.ToInt32(svc["id"]), svc ["name"], svc ["key"]);
+			foreach (Dictionary<string,string> svc in services) {
+				servicesStore.AppendValues (Convert.ToInt32 (svc ["id"]), svc ["name"], svc ["key"]);
+			}
+		} catch (WebException ex) {
+			ShowMessage (ex);
 		}
 	}
 
-	protected void LoadServiceDefinitions(string key, string id)
+	protected void LoadServiceDefinitions (string key, string id)
 	{
 		serviceDefinitionsStore.Clear ();
 
@@ -191,19 +200,23 @@ public partial class MainWindow: Gtk.Window
 			uri = String.Format ("services/third_parties/{0}/service_definitions", id);
 		}
 		WebServiceClient wsc = new WebServiceClient ();
-		List<Dictionary<string,string>> serviceDefinitions = wsc.DoGetDictionaryList (uri);
-		foreach (Dictionary<string,string> svcDef in serviceDefinitions) {
-			serviceDefinitionsStore.AppendValues (
-				Convert.ToInt32(DictValue(svcDef,"id")), 
-				DictValue(svcDef, "hostname"), 
-				DictValue(svcDef, "port"), 
-				DictValue(svcDef, "base_uri"), 
-				DictValue(svcDef, "username"), 
-				DictValue(svcDef, "service_class"), 
-				DictValue(svcDef, "password"), 
-				DictValue(svcDef, "token"),
-				Convert.ToInt32(DictValue(svcDef, "service_id")),
-				Convert.ToInt32(DictValue(svcDef, "third_party_id")));
+		try {
+			List<Dictionary<string,string>> serviceDefinitions = wsc.DoGetDictionaryList (uri);
+			foreach (Dictionary<string,string> svcDef in serviceDefinitions) {
+				serviceDefinitionsStore.AppendValues (
+					Convert.ToInt32 (DictValue (svcDef, "id")), 
+					DictValue (svcDef, "hostname"), 
+					DictValue (svcDef, "port"), 
+					DictValue (svcDef, "base_uri"), 
+					DictValue (svcDef, "username"), 
+					DictValue (svcDef, "service_class"), 
+					DictValue (svcDef, "password"), 
+					DictValue (svcDef, "token"),
+					Convert.ToInt32 (DictValue (svcDef, "service_id")),
+					Convert.ToInt32 (DictValue (svcDef, "third_party_id")));
+			}
+		} catch (WebException ex) {
+			ShowMessage (ex);
 		}
 	}
 
@@ -212,55 +225,71 @@ public partial class MainWindow: Gtk.Window
 		return dict.ContainsKey (key) ? dict [key] : "";
 	}
 
-	protected void LoadServicesCombo()
+	protected void LoadServicesCombo ()
 	{
 		sdServicesStore.Clear ();
 
 		WebServiceClient wsc = new WebServiceClient ();
 
-		List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
+		try {
+			List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
 
-		foreach (Dictionary<string,string> svc in services) {
-			sdServicesStore.AppendValues (svc ["name"], Convert.ToInt32(svc["id"]));
+			foreach (Dictionary<string,string> svc in services) {
+				sdServicesStore.AppendValues (svc ["name"], Convert.ToInt32 (svc ["id"]));
+			}
+		} catch (Exception ex) {
+			ShowMessage (ex);
 		}
 	}
 
-	protected void LoadThirdParties()
+	protected void LoadThirdParties ()
 	{
 		thirdPartiesStore.Clear ();
 
 		WebServiceClient wsc = new WebServiceClient ();
 
-		List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
+		try {
+			List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
 
-		foreach (Dictionary<string,string> tp in thirdParties) {
-			thirdPartiesStore.AppendValues (Convert.ToInt32(tp["id"]), tp ["name"], tp ["key"], tp ["contact_email"]);
+			foreach (Dictionary<string,string> tp in thirdParties) {
+				thirdPartiesStore.AppendValues (Convert.ToInt32 (tp ["id"]), tp ["name"], tp ["key"], tp ["contact_email"]);
+			}
+		} catch (WebException ex) {
+			ShowMessage (ex);
 		}
 	}
 
-	protected void LoadThirdPartiesCombo()
+	protected void LoadThirdPartiesCombo ()
 	{
 		sdThirdPartiesStore.Clear ();
 
 		WebServiceClient wsc = new WebServiceClient ();
 
-		List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
+		try {
+			List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
 
-		foreach (Dictionary<string,string> tp in thirdParties) {
-			sdThirdPartiesStore.AppendValues (tp ["name"], Convert.ToInt32(tp["id"]));
+			foreach (Dictionary<string,string> tp in thirdParties) {
+				sdThirdPartiesStore.AppendValues (tp ["name"], Convert.ToInt32 (tp ["id"]));
+			}
+		} catch (WebException ex) {
+			ShowMessage (ex);
 		}
 	}
 
-	protected void LoadPublicKeys()
+	protected void LoadPublicKeys ()
 	{
 		publicKeysStore.Clear ();
 
 		WebServiceClient wsc = new WebServiceClient ();
 
-		List<Dictionary<string,string>> publicKeys = wsc.DoGetDictionaryList ("services/public_keys");
+		try {
+			List<Dictionary<string,string>> publicKeys = wsc.DoGetDictionaryList ("services/public_keys");
 
-		foreach (Dictionary<string,string> pk in publicKeys) {
-			publicKeysStore.AppendValues (Convert.ToInt32(pk["id"]), pk ["name"], pk ["valid_until"]);
+			foreach (Dictionary<string,string> pk in publicKeys) {
+				publicKeysStore.AppendValues (Convert.ToInt32 (pk ["id"]), pk ["name"], pk ["valid_until"]);
+			}
+		} catch (WebException ex) {
+			ShowMessage (ex);
 		}
 	}
 
@@ -463,7 +492,12 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("third_party[contact_email]", email);
 
 			WebServiceClient wsc = new WebServiceClient ();
-			Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties", nvc);
+			try {
+				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties", nvc);
+				ShowMessage (postResponse);
+			} catch (WebException ex) {
+				ShowMessage (ex);
+			}
 		} 
 		dlg.Destroy ();
 	}
@@ -472,7 +506,6 @@ public partial class MainWindow: Gtk.Window
 	{
 		TreeSelection selection = thirdPartiesTree.Selection;
 		TreeIter iter;
-		// selection.GetSelected(
 		if (selection.GetSelected (out iter)) {
 			int i = (int)thirdPartiesStore.GetValue (iter, 0);
 			string name = (string)thirdPartiesStore.GetValue (iter, 1);
@@ -494,17 +527,13 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("third_party[contact_email]", dlg.ThirdPartyEmail);
 
 				WebServiceClient wsc = new WebServiceClient ();
-				Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + i, nvc);
-				string rsp = ProcessResponse(postResponse);
-				MessageDialog md = new MessageDialog (
-					this, 
-					DialogFlags.DestroyWithParent, 
-					MessageType.Info, 
-					ButtonsType.Ok, 
-					rsp);
-				md.Run ();
-				md.Destroy ();
+				try {
+					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + i, nvc);
+					ShowMessage (postResponse);
+				} catch (WebException ex) {
+					ShowMessage (ex);
 				}
+			}
 			dlg.Destroy ();
 		}
 	}
@@ -527,7 +556,12 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("public_key[valid_until]", validUntil.ToString ());
 
 			WebServiceClient wsc = new WebServiceClient ();
-			Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys", "POST", "public_key[key_file]", keyPath, nvc);
+			try {
+				Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys", "POST", "public_key[key_file]", keyPath, nvc);
+				ShowMessage (postResponse);
+			} catch (WebException ex) {
+				ShowMessage (ex);
+			}
 		} 
 		dlg.Destroy ();
 	}
@@ -536,11 +570,10 @@ public partial class MainWindow: Gtk.Window
 	{
 		TreeSelection selection = publicKeysTree.Selection;
 		TreeIter iter;
-		// selection.GetSelected(
 		if (selection.GetSelected (out iter)) {
 			int i = (int)publicKeysStore.GetValue (iter, 0);
 			string name = (string)publicKeysStore.GetValue (iter, 1);
-			DateTime validUntil = DateTime.Parse((string)publicKeysStore.GetValue (iter, 2));
+			DateTime validUntil = DateTime.Parse ((string)publicKeysStore.GetValue (iter, 2));
 
 			PublicKeyDialog dlg = new PublicKeyDialog ();
 			dlg.Modal = true;
@@ -552,10 +585,15 @@ public partial class MainWindow: Gtk.Window
 			if (response == (int)ResponseType.Ok) {
 				NameValueCollection nvc = new NameValueCollection ();
 				nvc.Add ("public_key[name]", dlg.PublicKeyName);
-				nvc.Add ("public_key[valid_until]", dlg.PublicKeyValidUntil.ToString());
+				nvc.Add ("public_key[valid_until]", dlg.PublicKeyValidUntil.ToString ());
 				string keyPath = dlg.PublicKeyFile;
 				WebServiceClient wsc = new WebServiceClient ();
-				Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys/" + i, "PUT", "public_key[key_file]", keyPath, nvc);
+				try {
+					Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys/" + i, "PUT", "public_key[key_file]", keyPath, nvc);
+					ShowMessage (postResponse);
+				} catch (WebException ex) {
+					ShowMessage (ex);
+				}
 			}
 			dlg.Destroy ();
 		}
@@ -565,17 +603,16 @@ public partial class MainWindow: Gtk.Window
 	{
 		TreeSelection selection = publicKeysTree.Selection;
 		TreeIter iter;
-		// selection.GetSelected(
 		if (selection.GetSelected (out iter)) {
 			int i = (int)publicKeysStore.GetValue (iter, 0);
 			string name = (string)publicKeysStore.GetValue (iter, 1);
 			MessageDialog md = new MessageDialog (
-				this, 
-				DialogFlags.DestroyWithParent, 
-				MessageType.Question, 
-				ButtonsType.YesNo, 
-				"Are you sure you want to delete public key '{0}'", 
-				name);
+				                   this, 
+				                   DialogFlags.DestroyWithParent, 
+				                   MessageType.Question, 
+				                   ButtonsType.YesNo, 
+				                   "Are you sure you want to delete public key '{0}'", 
+				                   name);
 			int response = md.Run ();
 			md.Destroy ();
 			if ((int)ResponseType.No == response) {
@@ -583,7 +620,12 @@ public partial class MainWindow: Gtk.Window
 			}
 
 			WebServiceClient wsc = new WebServiceClient ();
-			Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection());
+			try {
+				Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection ());
+				ShowMessage (postResponse);
+			} catch (WebException ex) {
+				ShowMessage (ex);
+			}
 		}
 	}
 
@@ -609,8 +651,8 @@ public partial class MainWindow: Gtk.Window
 			string token = dlg.Token;
 
 			NameValueCollection nvc = new NameValueCollection ();
-			nvc.Add ("service_definition[service_id]", serviceId.ToString());
-			nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString());
+			nvc.Add ("service_definition[service_id]", serviceId.ToString ());
+			nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString ());
 			nvc.Add ("service_definition[hostname]", hostname);
 			nvc.Add ("service_definition[port]", port);
 			nvc.Add ("service_definition[base_uri]", baseUri);
@@ -620,7 +662,12 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("credential[token]", token);
 
 			WebServiceClient wsc = new WebServiceClient ();
-			Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties/" + thirdPartyId + "/service_definitions", nvc);
+			try {
+				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties/" + thirdPartyId + "/service_definitions", nvc);
+				ShowMessage (postResponse);
+			} catch (WebException ex) {
+				ShowMessage (ex);
+			}
 		} 
 		dlg.Destroy ();
 	}
@@ -636,15 +683,15 @@ public partial class MainWindow: Gtk.Window
 			dlg.Modal = true;
 			dlg.Services = sdServicesStore;
 			dlg.ThirdParties = sdThirdPartiesStore;
-			dlg.HostName = (string)serviceDefinitionsStore.GetValue(iter, 1);
-			dlg.Port = (string)serviceDefinitionsStore.GetValue(iter, 2);
-			dlg.BaseURI = (string)serviceDefinitionsStore.GetValue(iter, 3);
+			dlg.HostName = (string)serviceDefinitionsStore.GetValue (iter, 1);
+			dlg.Port = (string)serviceDefinitionsStore.GetValue (iter, 2);
+			dlg.BaseURI = (string)serviceDefinitionsStore.GetValue (iter, 3);
 			dlg.UserName = (string)serviceDefinitionsStore.GetValue (iter, 4);
 			dlg.ServiceClass = (string)serviceDefinitionsStore.GetValue (iter, 5);
 			dlg.Password = (string)serviceDefinitionsStore.GetValue (iter, 6);
 			dlg.Token = (string)serviceDefinitionsStore.GetValue (iter, 7);
 			dlg.ServiceId = (int)serviceDefinitionsStore.GetValue (iter, 8);
-			dlg.ThirdPartyId = (int)serviceDefinitionsStore.GetValue(iter, 9);
+			dlg.ThirdPartyId = (int)serviceDefinitionsStore.GetValue (iter, 9);
 
 			int response = dlg.Run ();
 
@@ -661,8 +708,8 @@ public partial class MainWindow: Gtk.Window
 				string token = dlg.Token;
 
 				NameValueCollection nvc = new NameValueCollection ();
-				nvc.Add ("service_definition[service_id]", serviceId.ToString());
-				nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString());
+				nvc.Add ("service_definition[service_id]", serviceId.ToString ());
+				nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString ());
 				nvc.Add ("service_definition[hostname]", hostname);
 				nvc.Add ("service_definition[port]", port);
 				nvc.Add ("service_definition[base_uri]", baseUri);
@@ -672,7 +719,12 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("credential[token]", token);
 
 				WebServiceClient wsc = new WebServiceClient ();
-				Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, nvc);
+				try {
+					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, nvc);
+					ShowMessage (postResponse);
+				} catch (WebException ex) {
+					ShowMessage (ex);
+				}
 			} 
 			dlg.Destroy ();
 		}
@@ -684,16 +736,16 @@ public partial class MainWindow: Gtk.Window
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
 			int i = (int)serviceDefinitionsStore.GetValue (iter, 0);
-			int thirdPartyId = (int)serviceDefinitionsStore.GetValue(iter, 9);
+			int thirdPartyId = (int)serviceDefinitionsStore.GetValue (iter, 9);
 
 			string hostname = (string)serviceDefinitionsStore.GetValue (iter, 1);
 			MessageDialog md = new MessageDialog (
-				this, 
-				DialogFlags.DestroyWithParent, 
-				MessageType.Question, 
-				ButtonsType.YesNo, 
-				"Are you sure you want to delete public key '{0}'", 
-				hostname);
+				                   this, 
+				                   DialogFlags.DestroyWithParent, 
+				                   MessageType.Question, 
+				                   ButtonsType.YesNo, 
+				                   "Are you sure you want to delete public key '{0}'", 
+				                   hostname);
 			int response = md.Run ();
 			md.Destroy ();
 			if ((int)ResponseType.No == response) {
@@ -701,7 +753,12 @@ public partial class MainWindow: Gtk.Window
 			}
 
 			WebServiceClient wsc = new WebServiceClient ();
-			Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, new NameValueCollection());
+			try {
+				Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, new NameValueCollection ());
+				ShowMessage (postResponse);
+			} catch (WebException ex) {
+				ShowMessage (ex);
+			}
 		}
 	}
 
@@ -738,5 +795,43 @@ public partial class MainWindow: Gtk.Window
 		}
 
 		return sb.ToString ();
+	}
+
+	private void ShowMessage(Dictionary<string,string> response)
+	{
+		// Do any of the keys in the response have 'error' in it?
+		Regex re = new Regex ("error");
+		MessageType mt = MessageType.Info;
+		foreach (string key in response.Keys) {
+			if (re.IsMatch (key)) {
+				mt = MessageType.Error;
+				break;
+			}
+		}
+
+		string rsp = ProcessResponse (response);
+		ShowMessage (rsp, mt);
+	}
+
+	private void ShowMessage(Exception ex)
+	{
+		ShowMessage (ex.Message, MessageType.Error);
+	}
+
+	private void ShowMessage(string message)
+	{
+		ShowMessage (message, MessageType.Info);
+	}
+
+	private void ShowMessage(string message, MessageType mt)
+	{
+		MessageDialog md = new MessageDialog (
+			                   this, 
+			                   DialogFlags.DestroyWithParent, 
+			                   mt, 
+			                   ButtonsType.Ok, 
+			                   message);
+		md.Run ();
+		md.Destroy ();
 	}
 }
