@@ -41,8 +41,6 @@ public partial class MainWindow: Gtk.Window
 
 		SetupPublicKeysTreeView ();
 
-		SetupServicesTreeView ();
-
 		sdThirdPartiesStore = new ListStore (typeof(string), typeof(int));
 		cbThirdParties.Model = sdThirdPartiesStore;
 
@@ -66,18 +64,14 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnRefreshTubes (object sender, EventArgs e)
 	{
-		WebServiceClient wsc = new WebServiceClient ();
-
-		try {
+		WebClientCall ((wsc) => {
 			List<string> tubes = wsc.DoGetList ("beanstalk/tubes");
 
 			tubeStore.Clear ();
 			foreach (String tube in tubes) {
 				tubeStore.AppendValues (tube);
 			}
-		} catch (WebException ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	protected void OnGetStatistics (object sender, EventArgs e)
@@ -90,17 +84,14 @@ public partial class MainWindow: Gtk.Window
 			uri.AppendFormat ("/tubes/{0}", encodedTube);
 		}
 
-		WebServiceClient wsc = new WebServiceClient ();
-		try {
+		WebClientCall ((wsc) => {
 			Dictionary<string,string> statistics = wsc.DoGetDictionary (uri.ToString ());
 
 			statisticsStore.Clear ();
 			foreach (string key in statistics.Keys) {
 				statisticsStore.AppendValues (key, statistics [key]);
 			}
-		} catch (WebException ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	static string base64urlencode(byte [] arg)
@@ -128,13 +119,10 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("service[name]", name);
 			nvc.Add ("service[key]", key);
 
-			WebServiceClient wsc = new WebServiceClient ();
-			try {
+			WebClientCall ((wsc) => {
 				Dictionary<string,string> postResponse = wsc.DoPost ("services/services", nvc);
 				ShowMessage (postResponse);
-			} catch (WebException ex) {
-				ShowMessage (ex);
-			}
+			});
 		} 
 		dlg.Destroy ();
 	}
@@ -160,13 +148,10 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("service[name]", dlg.ServiceName);
 				nvc.Add ("service[key]", dlg.ServiceKey);
 
-				WebServiceClient wsc = new WebServiceClient ();
-				try {
+				WebClientCall ((wsc) => {
 					Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + i, nvc);
 					ShowMessage (postResponse);
-				} catch (WebException ex) {
-					ShowMessage (ex);
-				}
+				});
 			}
 			dlg.Destroy ();
 		}
@@ -176,17 +161,13 @@ public partial class MainWindow: Gtk.Window
 	{
 		servicesStore.Clear ();
 
-		WebServiceClient wsc = new WebServiceClient ();
-
-		try {
+		WebClientCall ((wsc) => {
 			List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
 
 			foreach (Dictionary<string,string> svc in services) {
 				servicesStore.AppendValues (Convert.ToInt32 (svc ["id"]), svc ["name"], svc ["key"]);
 			}
-		} catch (WebException ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	protected void LoadServiceDefinitions (string key, string id)
@@ -199,8 +180,7 @@ public partial class MainWindow: Gtk.Window
 		} else {
 			uri = String.Format ("services/third_parties/{0}/service_definitions", id);
 		}
-		WebServiceClient wsc = new WebServiceClient ();
-		try {
+		WebClientCall ((wsc) => {
 			List<Dictionary<string,string>> serviceDefinitions = wsc.DoGetDictionaryList (uri);
 			foreach (Dictionary<string,string> svcDef in serviceDefinitions) {
 				serviceDefinitionsStore.AppendValues (
@@ -215,9 +195,7 @@ public partial class MainWindow: Gtk.Window
 					Convert.ToInt32 (DictValue (svcDef, "service_id")),
 					Convert.ToInt32 (DictValue (svcDef, "third_party_id")));
 			}
-		} catch (WebException ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	private string DictValue(Dictionary<string,string> dict, string key) 
@@ -229,68 +207,52 @@ public partial class MainWindow: Gtk.Window
 	{
 		sdServicesStore.Clear ();
 
-		WebServiceClient wsc = new WebServiceClient ();
-
-		try {
+		WebClientCall ((wsc) => {
 			List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
 
 			foreach (Dictionary<string,string> svc in services) {
 				sdServicesStore.AppendValues (svc ["name"], Convert.ToInt32 (svc ["id"]));
 			}
-		} catch (Exception ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	protected void LoadThirdParties ()
 	{
 		thirdPartiesStore.Clear ();
 
-		WebServiceClient wsc = new WebServiceClient ();
-
-		try {
+		WebClientCall ((wsc) => {
 			List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
 
 			foreach (Dictionary<string,string> tp in thirdParties) {
 				thirdPartiesStore.AppendValues (Convert.ToInt32 (tp ["id"]), tp ["name"], tp ["key"], tp ["contact_email"]);
 			}
-		} catch (WebException ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	protected void LoadThirdPartiesCombo ()
 	{
 		sdThirdPartiesStore.Clear ();
 
-		WebServiceClient wsc = new WebServiceClient ();
-
-		try {
+		WebClientCall ((wsc) => {
 			List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
 
 			foreach (Dictionary<string,string> tp in thirdParties) {
 				sdThirdPartiesStore.AppendValues (tp ["name"], Convert.ToInt32 (tp ["id"]));
 			}
-		} catch (WebException ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	protected void LoadPublicKeys ()
 	{
 		publicKeysStore.Clear ();
 
-		WebServiceClient wsc = new WebServiceClient ();
-
-		try {
+		WebClientCall ((wsc) => {
 			List<Dictionary<string,string>> publicKeys = wsc.DoGetDictionaryList ("services/public_keys");
 
 			foreach (Dictionary<string,string> pk in publicKeys) {
 				publicKeysStore.AppendValues (Convert.ToInt32 (pk ["id"]), pk ["name"], pk ["valid_until"]);
 			}
-		} catch (WebException ex) {
-			ShowMessage (ex);
-		}
+		});
 	}
 
 	protected void OnSwitchPage (object o, SwitchPageArgs args)
@@ -491,13 +453,10 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("third_party[key]", key);
 			nvc.Add ("third_party[contact_email]", email);
 
-			WebServiceClient wsc = new WebServiceClient ();
-			try {
+			WebClientCall ((wsc) => {
 				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties", nvc);
 				ShowMessage (postResponse);
-			} catch (WebException ex) {
-				ShowMessage (ex);
-			}
+			});
 		} 
 		dlg.Destroy ();
 	}
@@ -526,13 +485,10 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("third_party[key]", dlg.ThirdPartyKey);
 				nvc.Add ("third_party[contact_email]", dlg.ThirdPartyEmail);
 
-				WebServiceClient wsc = new WebServiceClient ();
-				try {
+				WebClientCall ((wsc) => {
 					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + i, nvc);
 					ShowMessage (postResponse);
-				} catch (WebException ex) {
-					ShowMessage (ex);
-				}
+				});
 			}
 			dlg.Destroy ();
 		}
@@ -555,13 +511,10 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("public_key[name]", name);
 			nvc.Add ("public_key[valid_until]", validUntil.ToString ());
 
-			WebServiceClient wsc = new WebServiceClient ();
-			try {
+			WebClientCall ((wsc) => {
 				Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys", "POST", "public_key[key_file]", keyPath, nvc);
 				ShowMessage (postResponse);
-			} catch (WebException ex) {
-				ShowMessage (ex);
-			}
+			});
 		} 
 		dlg.Destroy ();
 	}
@@ -587,13 +540,10 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("public_key[name]", dlg.PublicKeyName);
 				nvc.Add ("public_key[valid_until]", dlg.PublicKeyValidUntil.ToString ());
 				string keyPath = dlg.PublicKeyFile;
-				WebServiceClient wsc = new WebServiceClient ();
-				try {
+				WebClientCall ((wsc) => {
 					Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys/" + i, "PUT", "public_key[key_file]", keyPath, nvc);
 					ShowMessage (postResponse);
-				} catch (WebException ex) {
-					ShowMessage (ex);
-				}
+				});
 			}
 			dlg.Destroy ();
 		}
@@ -608,13 +558,10 @@ public partial class MainWindow: Gtk.Window
 			string name = (string)publicKeysStore.GetValue (iter, 1);
 			ConfirmIt (string.Format ("Are you sure you want to delete public key '{0}'?", 
 				name), () => {
-				WebServiceClient wsc = new WebServiceClient ();
-				try {
+				WebClientCall((wsc) => {
 					Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection ());
 					ShowMessage (postResponse);
-				} catch (WebException ex) {
-					ShowMessage (ex);
-				}
+				});
 			});
 		}
 	}
@@ -651,13 +598,10 @@ public partial class MainWindow: Gtk.Window
 			nvc.Add ("credential[password]", password);
 			nvc.Add ("credential[token]", token);
 
-			WebServiceClient wsc = new WebServiceClient ();
-			try {
+			WebClientCall ((wsc) => {
 				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties/" + thirdPartyId + "/service_definitions", nvc);
 				ShowMessage (postResponse);
-			} catch (WebException ex) {
-				ShowMessage (ex);
-			}
+			});
 		} 
 		dlg.Destroy ();
 	}
@@ -708,13 +652,10 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("credential[password]", password);
 				nvc.Add ("credential[token]", token);
 
-				WebServiceClient wsc = new WebServiceClient ();
-				try {
+				WebClientCall ((wsc) => {
 					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, nvc);
 					ShowMessage (postResponse);
-				} catch (WebException ex) {
-					ShowMessage (ex);
-				}
+				});
 			} 
 			dlg.Destroy ();
 		}
@@ -732,14 +673,10 @@ public partial class MainWindow: Gtk.Window
 			ConfirmIt (string.Format ("Are you sure you want to delete service definition '{0}'?", 
 				hostname),
 				() => {
-					WebServiceClient wsc = new WebServiceClient ();
-					try {
+					WebClientCall((wsc) => {
 						Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, new NameValueCollection ());
 						ShowMessage (postResponse);
-					} catch (WebException ex) {
-						ShowMessage (ex);
-					}
-				
+					});
 				});
 		}
 	}
@@ -831,6 +768,17 @@ public partial class MainWindow: Gtk.Window
 
 		if ((int)ResponseType.Yes == response) {
 			confirmedAction ();
+		}
+	}
+
+	private void WebClientCall(System.Action<WebServiceClient> clientAction)
+	{
+		WebServiceClient wsc = new WebServiceClient ();
+
+		try {
+			clientAction(wsc);
+		} catch (WebException ex) {
+			ShowMessage (ex);
 		}
 	}
 }
