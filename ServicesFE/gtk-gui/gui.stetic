@@ -51,7 +51,7 @@
           <widget class="Gtk.Notebook" id="nbTabs">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">4</property>
+            <property name="CurrentPage">3</property>
             <signal name="SwitchPage" handler="OnSwitchPage" />
             <child>
               <widget class="Gtk.VBox" id="vbox2">
@@ -301,6 +301,7 @@
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
                         <property name="StockId">gtk-new</property>
+                        <signal name="Clicked" handler="OnNewThirdParty" />
                         <property name="label">gtk-new</property>
                       </widget>
                       <packing>
@@ -317,6 +318,7 @@
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
                         <property name="StockId">gtk-edit</property>
+                        <signal name="Clicked" handler="OnEditThirdParty" />
                         <property name="label">gtk-edit</property>
                       </widget>
                       <packing>
@@ -386,6 +388,7 @@
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
                         <property name="StockId">gtk-new</property>
+                        <signal name="Clicked" handler="OnNewPublicKey" />
                         <property name="label">gtk-new</property>
                       </widget>
                       <packing>
@@ -402,6 +405,7 @@
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
                         <property name="StockId">gtk-edit</property>
+                        <signal name="Clicked" handler="OnEditPublicKey" />
                         <property name="label">gtk-edit</property>
                       </widget>
                       <packing>
@@ -418,6 +422,7 @@
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
                         <property name="StockId">gtk-delete</property>
+                        <signal name="Clicked" handler="OnDeletePublicKey" />
                         <property name="label">gtk-delete</property>
                       </widget>
                       <packing>

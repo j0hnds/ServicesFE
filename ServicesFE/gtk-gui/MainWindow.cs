@@ -143,7 +143,7 @@ public partial class MainWindow
 		this.nbTabs = new global::Gtk.Notebook ();
 		this.nbTabs.CanFocus = true;
 		this.nbTabs.Name = "nbTabs";
-		this.nbTabs.CurrentPage = 4;
+		this.nbTabs.CurrentPage = 3;
 		// Container child nbTabs.Gtk.Notebook+NotebookChild
 		this.vbox2 = new global::Gtk.VBox ();
 		this.vbox2.Name = "vbox2";
@@ -566,6 +566,11 @@ public partial class MainWindow
 		this.button2.Clicked += new global::System.EventHandler (this.OnGetStatistics);
 		this.button3.Clicked += new global::System.EventHandler (this.OnNewService);
 		this.button4.Clicked += new global::System.EventHandler (this.OnEditService);
+		this.button13.Clicked += new global::System.EventHandler (this.OnNewThirdParty);
+		this.button14.Clicked += new global::System.EventHandler (this.OnEditThirdParty);
+		this.button199.Clicked += new global::System.EventHandler (this.OnNewPublicKey);
+		this.button200.Clicked += new global::System.EventHandler (this.OnEditPublicKey);
+		this.button201.Clicked += new global::System.EventHandler (this.OnDeletePublicKey);
 		this.cbThirdParties.Changed += new global::System.EventHandler (this.OnSdThirdPartyChanged);
 		this.cbServices.Changed += new global::System.EventHandler (this.OnSdServiceChanged);
 		this.button313.Clicked += new global::System.EventHandler (this.OnNewServiceDefinition);

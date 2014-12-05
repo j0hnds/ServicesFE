@@ -151,7 +151,17 @@ public partial class MainWindow: Gtk.Window
 				nvc.Add ("service[key]", dlg.ServiceKey);
 
 				WebServiceClient wsc = new WebServiceClient ();
-				Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + i, nvc);
+				Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + 9000, nvc);
+				// Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + i, nvc);
+				string rsp = ProcessResponse(postResponse);
+				MessageDialog md = new MessageDialog (
+					this, 
+					DialogFlags.DestroyWithParent, 
+					MessageType.Info, 
+					ButtonsType.Ok, 
+					rsp);
+				md.Run ();
+				md.Destroy ();
 			}
 			dlg.Destroy ();
 		}
@@ -485,7 +495,16 @@ public partial class MainWindow: Gtk.Window
 
 				WebServiceClient wsc = new WebServiceClient ();
 				Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + i, nvc);
-			}
+				string rsp = ProcessResponse(postResponse);
+				MessageDialog md = new MessageDialog (
+					this, 
+					DialogFlags.DestroyWithParent, 
+					MessageType.Info, 
+					ButtonsType.Ok, 
+					rsp);
+				md.Run ();
+				md.Destroy ();
+				}
 			dlg.Destroy ();
 		}
 	}
@@ -705,5 +724,19 @@ public partial class MainWindow: Gtk.Window
 			int thirdPartyId = (int)sdThirdPartiesStore.GetValue (iter, 1);
 			LoadServiceDefinitions ("third_party_id", thirdPartyId.ToString());
 		}
+	}
+
+	private string ProcessResponse(Dictionary<string,string> response)
+	{
+		StringBuilder sb = new StringBuilder ();
+
+		foreach (string key in response.Keys) {
+			if (sb.Length > 0) {
+				sb.Append (Environment.NewLine);
+			}
+			sb.AppendFormat ("{0}: {1}", key, response [key]);
+		}
+
+		return sb.ToString ();
 	}
 }
