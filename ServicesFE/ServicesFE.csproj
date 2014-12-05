@@ -85,6 +85,11 @@
     <Compile Include="UploadFile.cs" />
     <Compile Include="ServiceDefinitionDialog.cs" />
     <Compile Include="gtk-gui\ServicesFE.ServiceDefinitionDialog.cs" />
+    <Compile Include="Service.cs" />
+    <Compile Include="ThirdParty.cs" />
+    <Compile Include="PublicKey.cs" />
+    <Compile Include="DateConverter.cs" />
+    <Compile Include="ServiceDefinition.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

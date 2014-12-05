@@ -40,7 +40,7 @@ namespace ServicesFE
 		{
 			get { return token; }
 		}
-
+			
 		public byte[] DoGet(string uri) 
 		{
 			return DoGet (uri, new NameValueCollection ());
@@ -128,6 +128,27 @@ namespace ServicesFE
 
 			JsonSerializer serializer = new JsonSerializer ();
 			return (List<Dictionary<string,string>>)serializer.Deserialize (reader, typeof(List<Dictionary<string,string>>));
+		}
+
+		public List<T> DoGetList<T>(string uri)
+		{
+			byte[] data = DoGet (uri, new NameValueCollection());
+
+			JsonReader reader = BuildJsonReader (data);
+
+			JsonSerializer serializer = new JsonSerializer();
+			serializer.Converters.Add (new DateConverter ());
+			return (List<T>)serializer.Deserialize (reader, typeof(List<T>));
+		}
+
+		public List<Service> DoGetServicesList(string uri)
+		{
+			byte[] data = DoGet (uri, new NameValueCollection());
+
+			JsonReader reader = BuildJsonReader (data);
+
+			JsonSerializer serializer = new JsonSerializer ();
+			return (List<Service>)serializer.Deserialize (reader, typeof(List<Service>));
 		}
 
 		public List<Dictionary<string,string>> DoGetDictionaryList(string uri)

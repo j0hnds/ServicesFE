@@ -105,12 +105,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnNewService (object sender, EventArgs e)
 	{
-		ServiceDialog dlg = new ServiceDialog ();
-		dlg.Modal = true;
-
-		int response = dlg.Run ();
-
-		if (response == (int)ResponseType.Ok) {
+		ServiceDialog.CreateService ((dlg) => {
 			// Actually save the new service
 			string name = dlg.ServiceName;
 			string key = dlg.ServiceKey;
@@ -123,8 +118,7 @@ public partial class MainWindow: Gtk.Window
 				Dictionary<string,string> postResponse = wsc.DoPost ("services/services", nvc);
 				ShowMessage (postResponse);
 			});
-		} 
-		dlg.Destroy ();
+		});
 	}
 
 	protected void OnEditService (object sender, EventArgs e)
@@ -162,10 +156,10 @@ public partial class MainWindow: Gtk.Window
 		servicesStore.Clear ();
 
 		WebClientCall ((wsc) => {
-			List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
+			List<Service> services = wsc.DoGetList<Service> ("services/services");
 
-			foreach (Dictionary<string,string> svc in services) {
-				servicesStore.AppendValues (Convert.ToInt32 (svc ["id"]), svc ["name"], svc ["key"]);
+			foreach (Service svc in services) {
+				servicesStore.AppendValues (Convert.ToInt32 (svc.Id), svc.Name, svc.Key, svc);
 			}
 		});
 	}
@@ -181,26 +175,26 @@ public partial class MainWindow: Gtk.Window
 			uri = String.Format ("services/third_parties/{0}/service_definitions", id);
 		}
 		WebClientCall ((wsc) => {
-			List<Dictionary<string,string>> serviceDefinitions = wsc.DoGetDictionaryList (uri);
-			foreach (Dictionary<string,string> svcDef in serviceDefinitions) {
+			List<ServiceDefinition> serviceDefinitions = wsc.DoGetList<ServiceDefinition> (uri);
+			foreach (ServiceDefinition svcDef in serviceDefinitions) {
 				serviceDefinitionsStore.AppendValues (
-					Convert.ToInt32 (DictValue (svcDef, "id")), 
-					DictValue (svcDef, "hostname"), 
-					DictValue (svcDef, "port"), 
-					DictValue (svcDef, "base_uri"), 
-					DictValue (svcDef, "username"), 
-					DictValue (svcDef, "service_class"), 
-					DictValue (svcDef, "password"), 
-					DictValue (svcDef, "token"),
-					Convert.ToInt32 (DictValue (svcDef, "service_id")),
-					Convert.ToInt32 (DictValue (svcDef, "third_party_id")));
+					Convert.ToInt32 (svcDef.Id), 
+					HandleEmpty (svcDef.Hostname), 
+					HandleEmpty (svcDef.Port), 
+					HandleEmpty (svcDef.BaseURI), 
+					HandleEmpty (svcDef.Username), 
+					HandleEmpty (svcDef.ServiceClass), 
+					HandleEmpty (svcDef.Password), 
+					HandleEmpty (svcDef.Token),
+					Convert.ToInt32 (svcDef.ServiceId),
+					Convert.ToInt32 (svcDef.ThirdPartyId),
+					svcDef);
 			}
 		});
 	}
 
-	private string DictValue(Dictionary<string,string> dict, string key) 
-	{
-		return dict.ContainsKey (key) ? dict [key] : "";
+	private string HandleEmpty(string value) {
+		return (value == null) ? "" : value;
 	}
 
 	protected void LoadServicesCombo ()
@@ -208,10 +202,10 @@ public partial class MainWindow: Gtk.Window
 		sdServicesStore.Clear ();
 
 		WebClientCall ((wsc) => {
-			List<Dictionary<string,string>> services = wsc.DoGetDictionaryList ("services/services");
+			List<Service> services = wsc.DoGetList<Service> ("services/services");
 
-			foreach (Dictionary<string,string> svc in services) {
-				sdServicesStore.AppendValues (svc ["name"], Convert.ToInt32 (svc ["id"]));
+			foreach (Service svc in services) {
+				sdServicesStore.AppendValues (svc.Name, Convert.ToInt32 (svc.Id));
 			}
 		});
 	}
@@ -221,10 +215,10 @@ public partial class MainWindow: Gtk.Window
 		thirdPartiesStore.Clear ();
 
 		WebClientCall ((wsc) => {
-			List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
+			List<ThirdParty> thirdParties = wsc.DoGetList<ThirdParty> ("services/third_parties");
 
-			foreach (Dictionary<string,string> tp in thirdParties) {
-				thirdPartiesStore.AppendValues (Convert.ToInt32 (tp ["id"]), tp ["name"], tp ["key"], tp ["contact_email"]);
+			foreach (ThirdParty tp in thirdParties) {
+				thirdPartiesStore.AppendValues (Convert.ToInt32 (tp.Id), tp.Name, tp.Key, tp.ContactEmail, tp);
 			}
 		});
 	}
@@ -234,10 +228,10 @@ public partial class MainWindow: Gtk.Window
 		sdThirdPartiesStore.Clear ();
 
 		WebClientCall ((wsc) => {
-			List<Dictionary<string,string>> thirdParties = wsc.DoGetDictionaryList ("services/third_parties");
+			List<ThirdParty> thirdParties = wsc.DoGetList<ThirdParty> ("services/third_parties");
 
-			foreach (Dictionary<string,string> tp in thirdParties) {
-				sdThirdPartiesStore.AppendValues (tp ["name"], Convert.ToInt32 (tp ["id"]));
+			foreach (ThirdParty tp in thirdParties) {
+				sdThirdPartiesStore.AppendValues (tp.Name, Convert.ToInt32 (tp.Id));
 			}
 		});
 	}
@@ -247,10 +241,10 @@ public partial class MainWindow: Gtk.Window
 		publicKeysStore.Clear ();
 
 		WebClientCall ((wsc) => {
-			List<Dictionary<string,string>> publicKeys = wsc.DoGetDictionaryList ("services/public_keys");
+			List<PublicKey> publicKeys = wsc.DoGetList<PublicKey> ("services/public_keys");
 
-			foreach (Dictionary<string,string> pk in publicKeys) {
-				publicKeysStore.AppendValues (Convert.ToInt32 (pk ["id"]), pk ["name"], pk ["valid_until"]);
+			foreach (PublicKey pk in publicKeys) {
+				publicKeysStore.AppendValues (Convert.ToInt32 (pk.Id), pk.Name, pk.FormattedValidUntil, pk);
 			}
 		});
 	}
@@ -326,7 +320,11 @@ public partial class MainWindow: Gtk.Window
 		servicesTree.AppendColumn (svcNameCol);
 		servicesTree.AppendColumn (svcKeyCol);
 
-		servicesStore = new ListStore (typeof(int), typeof(string), typeof(string));
+		servicesStore = new ListStore (typeof(int), 
+			typeof(string), 
+			typeof(string),
+			typeof(Service));
+
 		servicesTree.Model = servicesStore;
 	}
 
@@ -354,7 +352,11 @@ public partial class MainWindow: Gtk.Window
 		thirdPartiesTree.AppendColumn (tpKeyCol);
 		thirdPartiesTree.AppendColumn (tpEmailCol);
 
-		thirdPartiesStore = new ListStore (typeof(int), typeof(string), typeof(string), typeof(string));
+		thirdPartiesStore = new ListStore (typeof(int), 
+			typeof(string), 
+			typeof(string), 
+			typeof(string),
+			typeof(ThirdParty));
 		thirdPartiesTree.Model = thirdPartiesStore;
 	}
 
@@ -375,7 +377,10 @@ public partial class MainWindow: Gtk.Window
 		publicKeysTree.AppendColumn (pkNameCol);
 		publicKeysTree.AppendColumn (pkValidUntilCol);
 
-		publicKeysStore = new ListStore (typeof(int), typeof(string), typeof(string));
+		publicKeysStore = new ListStore (typeof(int), 
+			typeof(string), 
+			typeof(string),
+			typeof(PublicKey));
 		publicKeysTree.Model = publicKeysStore;
 	}
 
@@ -431,7 +436,17 @@ public partial class MainWindow: Gtk.Window
 		serviceDefinitionsTree.AppendColumn (sdPasswordCol);
 		serviceDefinitionsTree.AppendColumn (sdTokenCol);
 
-		serviceDefinitionsStore = new ListStore (typeof(int), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(int), typeof(int));
+		serviceDefinitionsStore = new ListStore (typeof(int), 
+			typeof(string), 
+			typeof(string), 
+			typeof(string), 
+			typeof(string), 
+			typeof(string), 
+			typeof(string), 
+			typeof(string), 
+			typeof(int), 
+			typeof(int),
+			typeof(ServiceDefinition));
 		serviceDefinitionsTree.Model = serviceDefinitionsStore;
 	}
 
@@ -509,7 +524,7 @@ public partial class MainWindow: Gtk.Window
 
 			NameValueCollection nvc = new NameValueCollection ();
 			nvc.Add ("public_key[name]", name);
-			nvc.Add ("public_key[valid_until]", validUntil.ToString ());
+			nvc.Add ("public_key[valid_until]", validUntil.ToString ("yyyy-MM-dd HH:mm:ss"));
 
 			WebClientCall ((wsc) => {
 				Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys", "POST", "public_key[key_file]", keyPath, nvc);
@@ -778,6 +793,8 @@ public partial class MainWindow: Gtk.Window
 		try {
 			clientAction(wsc);
 		} catch (WebException ex) {
+			ShowMessage (ex);
+		} catch (JsonSerializationException ex) {
 			ShowMessage (ex);
 		}
 	}
