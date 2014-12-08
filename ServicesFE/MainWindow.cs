@@ -143,6 +143,8 @@ public partial class MainWindow: Gtk.Window
 				servicesStore.AppendValues (Convert.ToInt32 (svc.Id), svc.Name, svc.Key, svc);
 			}
 		});
+
+		buttonEditService.Sensitive = false;
 	}
 
 	protected void LoadServiceDefinitions (string key, string id)
@@ -202,6 +204,7 @@ public partial class MainWindow: Gtk.Window
 				thirdPartiesStore.AppendValues (Convert.ToInt32 (tp.Id), tp.Name, tp.Key, tp.ContactEmail, tp);
 			}
 		});
+		buttonEditThirdParty.Sensitive = false;
 	}
 
 	protected void LoadThirdPartiesCombo ()
@@ -424,28 +427,13 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnNewThirdParty (object sender, EventArgs e)
 	{
-		ThirdPartyDialog dlg = new ThirdPartyDialog ();
-		dlg.Modal = true;
-
-		int response = dlg.Run ();
-
-		if (response == (int)ResponseType.Ok) {
-			// Actually save the new service
-			string name = dlg.ThirdPartyName;
-			string key = dlg.ThirdPartyKey;
-			string email = dlg.ThirdPartyEmail;
-
-			NameValueCollection nvc = new NameValueCollection ();
-			nvc.Add ("third_party[name]", name);
-			nvc.Add ("third_party[key]", key);
-			nvc.Add ("third_party[contact_email]", email);
-
+		ThirdPartyDialog.CreateThirdParty ((dlg) => {
 			WebClientCall ((wsc) => {
-				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties", nvc);
+				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties", dlg.ThirdParty.Parameters);
 				ShowMessage (postResponse);
 			});
-		} 
-		dlg.Destroy ();
+			LoadThirdParties();
+		});
 	}
 
 	protected void OnEditThirdParty (object sender, EventArgs e)
@@ -453,31 +441,14 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = thirdPartiesTree.Selection;
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
-			int i = (int)thirdPartiesStore.GetValue (iter, 0);
-			string name = (string)thirdPartiesStore.GetValue (iter, 1);
-			string key = (string)thirdPartiesStore.GetValue (iter, 2);
-			string email = (string)thirdPartiesStore.GetValue (iter, 3);
-
-			ThirdPartyDialog dlg = new ThirdPartyDialog ();
-			dlg.Modal = true;
-
-			dlg.ThirdPartyKey = key;
-			dlg.ThirdPartyName = name;
-			dlg.ThirdPartyEmail = email;
-
-			int response = dlg.Run ();
-			if (response == (int)ResponseType.Ok) {
-				NameValueCollection nvc = new NameValueCollection ();
-				nvc.Add ("third_party[name]", dlg.ThirdPartyName);
-				nvc.Add ("third_party[key]", dlg.ThirdPartyKey);
-				nvc.Add ("third_party[contact_email]", dlg.ThirdPartyEmail);
-
+			ThirdParty tp = (ThirdParty)thirdPartiesStore.GetValue (iter, 4);
+			ThirdPartyDialog.EditThirdParty (tp, (dlg) => {
 				WebClientCall ((wsc) => {
-					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + i, nvc);
+					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + tp.Id, tp.Parameters);
 					ShowMessage (postResponse);
 				});
-			}
-			dlg.Destroy ();
+				LoadThirdParties();
+			});
 		}
 	}
 
@@ -776,5 +747,12 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = servicesTree.Selection;
 		TreeIter iter;
 		buttonEditService.Sensitive = selection.GetSelected (out iter);
+	}
+
+	protected void OnThirdPartyCursorChanged (object sender, EventArgs e)
+	{
+		TreeSelection selection = thirdPartiesTree.Selection;
+		TreeIter iter;
+		buttonEditThirdParty.Sensitive = selection.GetSelected (out iter);
 	}
 }

@@ -59,7 +59,7 @@ public partial class MainWindow
 	
 	private global::Gtk.Button button13;
 	
-	private global::Gtk.Button button14;
+	private global::Gtk.Button buttonEditThirdParty;
 	
 	private global::Gtk.Label label4;
 	
@@ -143,7 +143,7 @@ public partial class MainWindow
 		this.nbTabs = new global::Gtk.Notebook ();
 		this.nbTabs.CanFocus = true;
 		this.nbTabs.Name = "nbTabs";
-		this.nbTabs.CurrentPage = 1;
+		this.nbTabs.CurrentPage = 2;
 		// Container child nbTabs.Gtk.Notebook+NotebookChild
 		this.vbox2 = new global::Gtk.VBox ();
 		this.vbox2.Name = "vbox2";
@@ -320,14 +320,15 @@ public partial class MainWindow
 		w20.Expand = false;
 		w20.Fill = false;
 		// Container child vbox4.Gtk.Box+BoxChild
-		this.button14 = new global::Gtk.Button ();
-		this.button14.CanFocus = true;
-		this.button14.Name = "button14";
-		this.button14.UseStock = true;
-		this.button14.UseUnderline = true;
-		this.button14.Label = "gtk-edit";
-		this.vbox4.Add (this.button14);
-		global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.button14]));
+		this.buttonEditThirdParty = new global::Gtk.Button ();
+		this.buttonEditThirdParty.Sensitive = false;
+		this.buttonEditThirdParty.CanFocus = true;
+		this.buttonEditThirdParty.Name = "buttonEditThirdParty";
+		this.buttonEditThirdParty.UseStock = true;
+		this.buttonEditThirdParty.UseUnderline = true;
+		this.buttonEditThirdParty.Label = "gtk-edit";
+		this.vbox4.Add (this.buttonEditThirdParty);
+		global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.buttonEditThirdParty]));
 		w21.Position = 1;
 		w21.Expand = false;
 		w21.Fill = false;
@@ -568,8 +569,9 @@ public partial class MainWindow
 		this.servicesTree.CursorChanged += new global::System.EventHandler (this.OnServiceCursorChanged);
 		this.button3.Clicked += new global::System.EventHandler (this.OnNewService);
 		this.buttonEditService.Clicked += new global::System.EventHandler (this.OnEditService);
+		this.thirdPartiesTree.CursorChanged += new global::System.EventHandler (this.OnThirdPartyCursorChanged);
 		this.button13.Clicked += new global::System.EventHandler (this.OnNewThirdParty);
-		this.button14.Clicked += new global::System.EventHandler (this.OnEditThirdParty);
+		this.buttonEditThirdParty.Clicked += new global::System.EventHandler (this.OnEditThirdParty);
 		this.button199.Clicked += new global::System.EventHandler (this.OnNewPublicKey);
 		this.button200.Clicked += new global::System.EventHandler (this.OnEditPublicKey);
 		this.button201.Clicked += new global::System.EventHandler (this.OnDeletePublicKey);
