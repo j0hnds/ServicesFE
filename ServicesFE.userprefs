@@ -1,14 +1,15 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="ServicesFE/MainWindow.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="ServicesFE/ServiceDialog.cs">
     <Files>
-      <File FileName="ServicesFE/MainWindow.cs" Line="35" Column="35" />
-      <File FileName="ServicesFE/ServiceDialog.cs" Line="1" Column="1" />
-      <File FileName="ServicesFE/ThirdPartyDialog.cs" Line="1" Column="1" />
-      <File FileName="ServicesFE/PublicKeyDialog.cs" Line="1" Column="1" />
-      <File FileName="ServicesFE/WebServiceClient.cs" Line="51" Column="51" />
-      <File FileName="ServicesFE/UploadFile.cs" Line="1" Column="1" />
-      <File FileName="ServicesFE/ServiceDefinitionDialog.cs" Line="23" Column="23" />
+      <File FileName="ServicesFE/MainWindow.cs" Line="1" Column="1" />
+      <File FileName="ServicesFE/WebServiceClient.cs" Line="53" Column="53" />
+      <File FileName="ServicesFE/Service.cs" Line="23" Column="23" />
+      <File FileName="ServicesFE/ThirdParty.cs" Line="37" Column="37" />
+      <File FileName="ServicesFE/PublicKey.cs" Line="55" Column="55" />
+      <File FileName="ServicesFE/DateConverter.cs" Line="1" Column="1" />
+      <File FileName="ServicesFE/ServiceDefinition.cs" Line="3" Column="3" />
+      <File FileName="ServicesFE/ServiceDialog.cs" Line="3" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

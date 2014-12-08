@@ -29,6 +29,18 @@ namespace ServicesFE
 				return nvc;
 			}
 		}
+
+		public bool Valid() 
+		{
+			bool valid = true;
+			if (Name == null || (Name.Length == 0 || Name.Length > 255)) {
+				return false;
+			}
+			if (Key == null || (Key.Length == 0 || Key.Length > 255)) {
+				return false;
+			}
+			return valid;
+		}
 	}
 }
 

@@ -107,17 +107,11 @@ public partial class MainWindow: Gtk.Window
 	{
 		ServiceDialog.CreateService ((dlg) => {
 			// Actually save the new service
-			string name = dlg.ServiceName;
-			string key = dlg.ServiceKey;
-
-			NameValueCollection nvc = new NameValueCollection ();
-			nvc.Add ("service[name]", name);
-			nvc.Add ("service[key]", key);
-
 			WebClientCall ((wsc) => {
-				Dictionary<string,string> postResponse = wsc.DoPost ("services/services", nvc);
+				Dictionary<string,string> postResponse = wsc.DoPost ("services/services", dlg.Service.Parameters);
 				ShowMessage (postResponse);
 			});
+			LoadServices();
 		});
 	}
 
@@ -126,28 +120,16 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = servicesTree.Selection;
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
-			int i = (int)servicesStore.GetValue (iter, 0);
-			string name = (string)servicesStore.GetValue (iter, 1);
-			string key = (string)servicesStore.GetValue (iter, 2);
+//			int i = (int)servicesStore.GetValue (iter, 0);
+			Service svc = (Service)servicesStore.GetValue (iter, 3);
 
-			ServiceDialog dlg = new ServiceDialog ();
-			dlg.Modal = true;
-
-			dlg.ServiceKey = key;
-			dlg.ServiceName = name;
-
-			int response = dlg.Run ();
-			if (response == (int)ResponseType.Ok) {
-				NameValueCollection nvc = new NameValueCollection ();
-				nvc.Add ("service[name]", dlg.ServiceName);
-				nvc.Add ("service[key]", dlg.ServiceKey);
-
+			ServiceDialog.EditService ((Service)servicesStore.GetValue (iter, 3), (dlg) => {
 				WebClientCall ((wsc) => {
-					Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + i, nvc);
+					Dictionary<string,string> postResponse = wsc.DoPut ("services/services/" + svc.Id, svc.Parameters);
 					ShowMessage (postResponse);
 				});
-			}
-			dlg.Destroy ();
+				LoadServices();
+			});
 		}
 	}
 		
@@ -272,16 +254,7 @@ public partial class MainWindow: Gtk.Window
 			break;
 		}
 	}
-
-	protected void OnServiceActivated (object o, RowActivatedArgs args)
-	{
-		TreeSelection selection = servicesTree.Selection;
-		TreeIter iter;
-		if (selection.GetSelected (out iter)) {
-			int i = (int)servicesStore.GetValue (iter, 0);
-		}
-	}
-
+		
 	private void SetupBeanstalkTreeView()
 	{
 		TreeViewColumn statNameCol = new TreeViewColumn ();
@@ -797,5 +770,12 @@ public partial class MainWindow: Gtk.Window
 		} catch (JsonSerializationException ex) {
 			ShowMessage (ex);
 		}
+	}
+
+	protected void OnServiceCursorChanged (object sender, EventArgs e)
+	{
+		TreeSelection selection = servicesTree.Selection;
+		TreeIter iter;
+		buttonEditService.Sensitive = selection.GetSelected (out iter);
 	}
 }

@@ -51,7 +51,7 @@
           <widget class="Gtk.Notebook" id="nbTabs">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">3</property>
+            <property name="CurrentPage">1</property>
             <signal name="SwitchPage" handler="OnSwitchPage" />
             <child>
               <widget class="Gtk.VBox" id="vbox2">
@@ -190,6 +190,7 @@
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
+                        <signal name="CursorChanged" handler="OnServiceCursorChanged" />
                       </widget>
                     </child>
                   </widget>
@@ -224,8 +225,9 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Button" id="button4">
+                      <widget class="Gtk.Button" id="buttonEditService">
                         <property name="MemberName" />
+                        <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
@@ -734,6 +736,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnKeyChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -756,6 +759,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnNameChanged" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>

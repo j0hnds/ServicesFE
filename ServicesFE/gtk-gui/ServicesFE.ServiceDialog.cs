@@ -115,6 +115,8 @@ namespace ServicesFE
 			this.DefaultWidth = 400;
 			this.DefaultHeight = 300;
 			this.Show ();
+			this.eServiceName.Changed += new global::System.EventHandler (this.OnNameChanged);
+			this.eServiceKey.Changed += new global::System.EventHandler (this.OnKeyChanged);
 		}
 	}
 }

@@ -45,7 +45,7 @@ public partial class MainWindow
 	
 	private global::Gtk.Button button3;
 	
-	private global::Gtk.Button button4;
+	private global::Gtk.Button buttonEditService;
 	
 	private global::Gtk.Label label2;
 	
@@ -143,7 +143,7 @@ public partial class MainWindow
 		this.nbTabs = new global::Gtk.Notebook ();
 		this.nbTabs.CanFocus = true;
 		this.nbTabs.Name = "nbTabs";
-		this.nbTabs.CurrentPage = 3;
+		this.nbTabs.CurrentPage = 1;
 		// Container child nbTabs.Gtk.Notebook+NotebookChild
 		this.vbox2 = new global::Gtk.VBox ();
 		this.vbox2.Name = "vbox2";
@@ -260,14 +260,15 @@ public partial class MainWindow
 		w14.Expand = false;
 		w14.Fill = false;
 		// Container child vbox3.Gtk.Box+BoxChild
-		this.button4 = new global::Gtk.Button ();
-		this.button4.CanFocus = true;
-		this.button4.Name = "button4";
-		this.button4.UseStock = true;
-		this.button4.UseUnderline = true;
-		this.button4.Label = "gtk-edit";
-		this.vbox3.Add (this.button4);
-		global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.button4]));
+		this.buttonEditService = new global::Gtk.Button ();
+		this.buttonEditService.Sensitive = false;
+		this.buttonEditService.CanFocus = true;
+		this.buttonEditService.Name = "buttonEditService";
+		this.buttonEditService.UseStock = true;
+		this.buttonEditService.UseUnderline = true;
+		this.buttonEditService.Label = "gtk-edit";
+		this.vbox3.Add (this.buttonEditService);
+		global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonEditService]));
 		w15.Position = 1;
 		w15.Expand = false;
 		w15.Fill = false;
@@ -564,8 +565,9 @@ public partial class MainWindow
 		this.nbTabs.SwitchPage += new global::Gtk.SwitchPageHandler (this.OnSwitchPage);
 		this.button1.Clicked += new global::System.EventHandler (this.OnRefreshTubes);
 		this.button2.Clicked += new global::System.EventHandler (this.OnGetStatistics);
+		this.servicesTree.CursorChanged += new global::System.EventHandler (this.OnServiceCursorChanged);
 		this.button3.Clicked += new global::System.EventHandler (this.OnNewService);
-		this.button4.Clicked += new global::System.EventHandler (this.OnEditService);
+		this.buttonEditService.Clicked += new global::System.EventHandler (this.OnEditService);
 		this.button13.Clicked += new global::System.EventHandler (this.OnNewThirdParty);
 		this.button14.Clicked += new global::System.EventHandler (this.OnEditThirdParty);
 		this.button199.Clicked += new global::System.EventHandler (this.OnNewPublicKey);
