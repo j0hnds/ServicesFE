@@ -231,6 +231,8 @@ public partial class MainWindow: Gtk.Window
 				publicKeysStore.AppendValues (Convert.ToInt32 (pk.Id), pk.Name, pk.FormattedValidUntil, pk);
 			}
 		});
+		buttonEditPublicKey.Sensitive = false;
+		buttonDeletePublicKey.Sensitive = false;
 	}
 
 	protected void OnSwitchPage (object o, SwitchPageArgs args)
@@ -454,27 +456,13 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnNewPublicKey (object sender, EventArgs e)
 	{
-		PublicKeyDialog dlg = new PublicKeyDialog ();
-		dlg.Modal = true;
-
-		int response = dlg.Run ();
-
-		if (response == (int)ResponseType.Ok) {
-			// Actually save the new service
-			string name = dlg.PublicKeyName;
-			DateTime validUntil = dlg.PublicKeyValidUntil;
-			string keyPath = dlg.PublicKeyFile;
-
-			NameValueCollection nvc = new NameValueCollection ();
-			nvc.Add ("public_key[name]", name);
-			nvc.Add ("public_key[valid_until]", validUntil.ToString ("yyyy-MM-dd HH:mm:ss"));
-
+		PublicKeyDialog.CreatePublicKey ((dlg) => {
 			WebClientCall ((wsc) => {
-				Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys", "POST", "public_key[key_file]", keyPath, nvc);
+				Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys", "POST", "public_key[key_file]", dlg.PublicKeyFile, dlg.PublicKey.Parameters);
 				ShowMessage (postResponse);
 			});
-		} 
-		dlg.Destroy ();
+			LoadPublicKeys();
+		});
 	}
 
 	protected void OnEditPublicKey (object sender, EventArgs e)
@@ -482,28 +470,15 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = publicKeysTree.Selection;
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
-			int i = (int)publicKeysStore.GetValue (iter, 0);
-			string name = (string)publicKeysStore.GetValue (iter, 1);
-			DateTime validUntil = DateTime.Parse ((string)publicKeysStore.GetValue (iter, 2));
+			PublicKey pk = (PublicKey)publicKeysStore.GetValue (iter, 3);
 
-			PublicKeyDialog dlg = new PublicKeyDialog ();
-			dlg.Modal = true;
-
-			dlg.PublicKeyName = name;
-			dlg.PublicKeyValidUntil = validUntil;
-
-			int response = dlg.Run ();
-			if (response == (int)ResponseType.Ok) {
-				NameValueCollection nvc = new NameValueCollection ();
-				nvc.Add ("public_key[name]", dlg.PublicKeyName);
-				nvc.Add ("public_key[valid_until]", dlg.PublicKeyValidUntil.ToString ());
-				string keyPath = dlg.PublicKeyFile;
+			PublicKeyDialog.EditPublicKey (pk, (dlg) => {
 				WebClientCall ((wsc) => {
-					Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys/" + i, "PUT", "public_key[key_file]", keyPath, nvc);
+					Dictionary<string,string> postResponse = wsc.DoUpload ("services/public_keys/" + pk.Id, "PUT", "public_key[key_file]", dlg.PublicKeyFile, pk.Parameters);
 					ShowMessage (postResponse);
 				});
-			}
-			dlg.Destroy ();
+				LoadPublicKeys();
+			});
 		}
 	}
 
@@ -512,14 +487,14 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = publicKeysTree.Selection;
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
-			int i = (int)publicKeysStore.GetValue (iter, 0);
-			string name = (string)publicKeysStore.GetValue (iter, 1);
+			PublicKey pk = (PublicKey)publicKeysStore.GetValue (iter, 3);
 			ConfirmIt (string.Format ("Are you sure you want to delete public key '{0}'?", 
-				name), () => {
+				pk.Name), () => {
 				WebClientCall((wsc) => {
-					Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + i, new NameValueCollection ());
+					Dictionary<string,string> postResponse = wsc.DoDelete ("services/public_keys/" + pk.Id, new NameValueCollection ());
 					ShowMessage (postResponse);
 				});
+				LoadPublicKeys();
 			});
 		}
 	}
@@ -754,5 +729,13 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = thirdPartiesTree.Selection;
 		TreeIter iter;
 		buttonEditThirdParty.Sensitive = selection.GetSelected (out iter);
+	}
+
+	protected void OnPublicKeyCursorChange (object sender, EventArgs e)
+	{
+		TreeSelection selection = publicKeysTree.Selection;
+		TreeIter iter;
+		buttonEditPublicKey.Sensitive = selection.GetSelected (out iter);
+		buttonDeletePublicKey.Sensitive = selection.GetSelected (out iter);
 	}
 }

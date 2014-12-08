@@ -51,7 +51,7 @@
           <widget class="Gtk.Notebook" id="nbTabs">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">2</property>
+            <property name="CurrentPage">3</property>
             <signal name="SwitchPage" handler="OnSwitchPage" />
             <child>
               <widget class="Gtk.VBox" id="vbox2">
@@ -370,6 +370,7 @@
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
+                        <signal name="CursorChanged" handler="OnPublicKeyCursorChange" />
                       </widget>
                     </child>
                   </widget>
@@ -403,8 +404,9 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Button" id="button200">
+                      <widget class="Gtk.Button" id="buttonEditPublicKey">
                         <property name="MemberName" />
+                        <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
@@ -420,8 +422,9 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Button" id="button201">
+                      <widget class="Gtk.Button" id="buttonDeletePublicKey">
                         <property name="MemberName" />
+                        <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="UseStock">True</property>
                         <property name="Type">StockItem</property>
@@ -1063,7 +1066,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Dialog" id="ServicesFE.PublicKeyDialog" design-size="400 308">
+  <widget class="Gtk.Dialog" id="ServicesFE.PublicKeyDialog" design-size="400 322">
     <property name="MemberName" />
     <property name="WindowPosition">CenterOnParent</property>
     <property name="Buttons">2</property>
@@ -1075,7 +1078,7 @@
         <child>
           <widget class="Gtk.Table" id="table2">
             <property name="MemberName" />
-            <property name="NRows">4</property>
+            <property name="NRows">5</property>
             <property name="NColumns">3</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
@@ -1098,10 +1101,44 @@
               <placeholder />
             </child>
             <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
               <widget class="Gtk.Calendar" id="calPublicKeyValidUntil">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="DisplayOptions">35</property>
+                <signal name="DaySelected" handler="OnDaySelected" />
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.CheckButton" id="chkHasExpirationDate">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Has Expiration Date</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnToggleExpirationDate" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -1125,6 +1162,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnNameChanged" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -1144,10 +1182,11 @@
               <widget class="Gtk.FileChooserButton" id="fcPublicKeyFile">
                 <property name="MemberName" />
                 <property name="Title" translatable="yes">Select a Public Key File</property>
+                <signal name="SelectionChanged" handler="OnKeyFileChanged" />
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
@@ -1184,8 +1223,8 @@
                 <property name="LabelProp" translatable="yes">Valid Until:</property>
               </widget>
               <packing>
-                <property name="TopAttach">1</property>
-                <property name="BottomAttach">2</property>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -1203,8 +1242,8 @@
                 <property name="LabelProp" translatable="yes">Key File:</property>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>

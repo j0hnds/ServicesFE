@@ -8,6 +8,8 @@ namespace ServicesFE
 		
 		private global::Gtk.Calendar calPublicKeyValidUntil;
 		
+		private global::Gtk.CheckButton chkHasExpirationDate;
+		
 		private global::Gtk.Entry ePublicKeyName;
 		
 		private global::Gtk.FileChooserButton fcPublicKeyFile;
@@ -33,23 +35,39 @@ namespace ServicesFE
 			w1.Name = "dialog1_VBox";
 			w1.BorderWidth = ((uint)(2));
 			// Container child dialog1_VBox.Gtk.Box+BoxChild
-			this.table2 = new global::Gtk.Table (((uint)(4)), ((uint)(3)), false);
+			this.table2 = new global::Gtk.Table (((uint)(5)), ((uint)(3)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
 			// Container child table2.Gtk.Table+TableChild
 			this.calPublicKeyValidUntil = new global::Gtk.Calendar ();
+			this.calPublicKeyValidUntil.Sensitive = false;
 			this.calPublicKeyValidUntil.CanFocus = true;
 			this.calPublicKeyValidUntil.Name = "calPublicKeyValidUntil";
 			this.calPublicKeyValidUntil.DisplayOptions = ((global::Gtk.CalendarDisplayOptions)(35));
 			this.table2.Add (this.calPublicKeyValidUntil);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table2 [this.calPublicKeyValidUntil]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
+			w2.TopAttach = ((uint)(2));
+			w2.BottomAttach = ((uint)(3));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.chkHasExpirationDate = new global::Gtk.CheckButton ();
+			this.chkHasExpirationDate.CanFocus = true;
+			this.chkHasExpirationDate.Name = "chkHasExpirationDate";
+			this.chkHasExpirationDate.Label = global::Mono.Unix.Catalog.GetString ("Has Expiration Date");
+			this.chkHasExpirationDate.DrawIndicator = true;
+			this.chkHasExpirationDate.UseUnderline = true;
+			this.table2.Add (this.chkHasExpirationDate);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table2 [this.chkHasExpirationDate]));
+			w3.TopAttach = ((uint)(1));
+			w3.BottomAttach = ((uint)(2));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ePublicKeyName = new global::Gtk.Entry ();
 			this.ePublicKeyName.CanFocus = true;
@@ -57,59 +75,59 @@ namespace ServicesFE
 			this.ePublicKeyName.IsEditable = true;
 			this.ePublicKeyName.InvisibleChar = '●';
 			this.table2.Add (this.ePublicKeyName);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table2 [this.ePublicKeyName]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.fcPublicKeyFile = new global::Gtk.FileChooserButton (global::Mono.Unix.Catalog.GetString ("Select a Public Key File"), ((global::Gtk.FileChooserAction)(0)));
-			this.fcPublicKeyFile.Name = "fcPublicKeyFile";
-			this.table2.Add (this.fcPublicKeyFile);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table2 [this.fcPublicKeyFile]));
-			w4.TopAttach = ((uint)(2));
-			w4.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table2 [this.ePublicKeyName]));
 			w4.LeftAttach = ((uint)(1));
 			w4.RightAttach = ((uint)(2));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
+			this.fcPublicKeyFile = new global::Gtk.FileChooserButton (global::Mono.Unix.Catalog.GetString ("Select a Public Key File"), ((global::Gtk.FileChooserAction)(0)));
+			this.fcPublicKeyFile.Name = "fcPublicKeyFile";
+			this.table2.Add (this.fcPublicKeyFile);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table2 [this.fcPublicKeyFile]));
+			w5.TopAttach = ((uint)(3));
+			w5.BottomAttach = ((uint)(4));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label ();
 			this.label5.Name = "label5";
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Name:");
 			this.table2.Add (this.label5);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table2 [this.label5]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2 [this.label5]));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label ();
 			this.label6.Name = "label6";
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Valid Until:");
 			this.table2.Add (this.label6);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2 [this.label6]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2 [this.label6]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label ();
 			this.label7.Name = "label7";
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Key File:");
 			this.table2.Add (this.label7);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2 [this.label7]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2 [this.label7]));
+			w8.TopAttach = ((uint)(3));
+			w8.BottomAttach = ((uint)(4));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			w1.Add (this.table2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(w1 [this.table2]));
-			w8.Position = 0;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(w1 [this.table2]));
+			w9.Position = 0;
 			// Internal child ServicesFE.PublicKeyDialog.ActionArea
-			global::Gtk.HButtonBox w9 = this.ActionArea;
-			w9.Name = "dialog1_ActionArea";
-			w9.Spacing = 10;
-			w9.BorderWidth = ((uint)(5));
-			w9.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			global::Gtk.HButtonBox w10 = this.ActionArea;
+			w10.Name = "dialog1_ActionArea";
+			w10.Spacing = 10;
+			w10.BorderWidth = ((uint)(5));
+			w10.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonCancel = new global::Gtk.Button ();
 			this.buttonCancel.CanDefault = true;
@@ -119,9 +137,9 @@ namespace ServicesFE
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = "gtk-cancel";
 			this.AddActionWidget (this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w10 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w9 [this.buttonCancel]));
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w11 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w10 [this.buttonCancel]));
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button ();
 			this.buttonOk.CanDefault = true;
@@ -131,16 +149,20 @@ namespace ServicesFE
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = "gtk-ok";
 			this.AddActionWidget (this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w11 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w9 [this.buttonOk]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w12 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w10 [this.buttonOk]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.DefaultWidth = 400;
-			this.DefaultHeight = 308;
+			this.DefaultHeight = 322;
 			this.Show ();
+			this.fcPublicKeyFile.SelectionChanged += new global::System.EventHandler (this.OnKeyFileChanged);
+			this.ePublicKeyName.Changed += new global::System.EventHandler (this.OnNameChanged);
+			this.chkHasExpirationDate.Toggled += new global::System.EventHandler (this.OnToggleExpirationDate);
+			this.calPublicKeyValidUntil.DaySelected += new global::System.EventHandler (this.OnDaySelected);
 		}
 	}
 }

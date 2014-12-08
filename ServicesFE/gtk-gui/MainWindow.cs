@@ -73,9 +73,9 @@ public partial class MainWindow
 	
 	private global::Gtk.Button button199;
 	
-	private global::Gtk.Button button200;
+	private global::Gtk.Button buttonEditPublicKey;
 	
-	private global::Gtk.Button button201;
+	private global::Gtk.Button buttonDeletePublicKey;
 	
 	private global::Gtk.Label label8;
 	
@@ -143,7 +143,7 @@ public partial class MainWindow
 		this.nbTabs = new global::Gtk.Notebook ();
 		this.nbTabs.CanFocus = true;
 		this.nbTabs.Name = "nbTabs";
-		this.nbTabs.CurrentPage = 2;
+		this.nbTabs.CurrentPage = 3;
 		// Container child nbTabs.Gtk.Notebook+NotebookChild
 		this.vbox2 = new global::Gtk.VBox ();
 		this.vbox2.Name = "vbox2";
@@ -379,26 +379,28 @@ public partial class MainWindow
 		w26.Expand = false;
 		w26.Fill = false;
 		// Container child vbox5.Gtk.Box+BoxChild
-		this.button200 = new global::Gtk.Button ();
-		this.button200.CanFocus = true;
-		this.button200.Name = "button200";
-		this.button200.UseStock = true;
-		this.button200.UseUnderline = true;
-		this.button200.Label = "gtk-edit";
-		this.vbox5.Add (this.button200);
-		global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.button200]));
+		this.buttonEditPublicKey = new global::Gtk.Button ();
+		this.buttonEditPublicKey.Sensitive = false;
+		this.buttonEditPublicKey.CanFocus = true;
+		this.buttonEditPublicKey.Name = "buttonEditPublicKey";
+		this.buttonEditPublicKey.UseStock = true;
+		this.buttonEditPublicKey.UseUnderline = true;
+		this.buttonEditPublicKey.Label = "gtk-edit";
+		this.vbox5.Add (this.buttonEditPublicKey);
+		global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.buttonEditPublicKey]));
 		w27.Position = 1;
 		w27.Expand = false;
 		w27.Fill = false;
 		// Container child vbox5.Gtk.Box+BoxChild
-		this.button201 = new global::Gtk.Button ();
-		this.button201.CanFocus = true;
-		this.button201.Name = "button201";
-		this.button201.UseStock = true;
-		this.button201.UseUnderline = true;
-		this.button201.Label = "gtk-delete";
-		this.vbox5.Add (this.button201);
-		global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.button201]));
+		this.buttonDeletePublicKey = new global::Gtk.Button ();
+		this.buttonDeletePublicKey.Sensitive = false;
+		this.buttonDeletePublicKey.CanFocus = true;
+		this.buttonDeletePublicKey.Name = "buttonDeletePublicKey";
+		this.buttonDeletePublicKey.UseStock = true;
+		this.buttonDeletePublicKey.UseUnderline = true;
+		this.buttonDeletePublicKey.Label = "gtk-delete";
+		this.vbox5.Add (this.buttonDeletePublicKey);
+		global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.buttonDeletePublicKey]));
 		w28.Position = 2;
 		w28.Expand = false;
 		w28.Fill = false;
@@ -572,9 +574,10 @@ public partial class MainWindow
 		this.thirdPartiesTree.CursorChanged += new global::System.EventHandler (this.OnThirdPartyCursorChanged);
 		this.button13.Clicked += new global::System.EventHandler (this.OnNewThirdParty);
 		this.buttonEditThirdParty.Clicked += new global::System.EventHandler (this.OnEditThirdParty);
+		this.publicKeysTree.CursorChanged += new global::System.EventHandler (this.OnPublicKeyCursorChange);
 		this.button199.Clicked += new global::System.EventHandler (this.OnNewPublicKey);
-		this.button200.Clicked += new global::System.EventHandler (this.OnEditPublicKey);
-		this.button201.Clicked += new global::System.EventHandler (this.OnDeletePublicKey);
+		this.buttonEditPublicKey.Clicked += new global::System.EventHandler (this.OnEditPublicKey);
+		this.buttonDeletePublicKey.Clicked += new global::System.EventHandler (this.OnDeletePublicKey);
 		this.cbThirdParties.Changed += new global::System.EventHandler (this.OnSdThirdPartyChanged);
 		this.cbServices.Changed += new global::System.EventHandler (this.OnSdServiceChanged);
 		this.button313.Clicked += new global::System.EventHandler (this.OnNewServiceDefinition);

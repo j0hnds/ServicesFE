@@ -79,6 +79,9 @@ namespace ServicesFE
 			uf.Stream = File.Open (filePath, FileMode.Open);
 
 			byte[] data = UploadFile (BuildURL (uri), method, uf, parameters);
+
+			uf.Stream.Close();
+
 			// byte[] data = client.UploadValues(BuildURL(uri), parameters);
 			JsonReader reader = BuildJsonReader (data);
 
