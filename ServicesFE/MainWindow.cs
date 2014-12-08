@@ -120,7 +120,6 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = servicesTree.Selection;
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
-//			int i = (int)servicesStore.GetValue (iter, 0);
 			Service svc = (Service)servicesStore.GetValue (iter, 3);
 
 			ServiceDialog.EditService ((Service)servicesStore.GetValue (iter, 3), (dlg) => {

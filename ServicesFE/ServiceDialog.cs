@@ -13,16 +13,6 @@ namespace ServicesFE
 			buttonOk.Sensitive = false;
 		}
 
-//		public string ServiceName {
-//			get { return eServiceName.Text; }
-//			set { eServiceName.Text = value; }
-//		}
-//
-//		public string ServiceKey {
-//			get { return eServiceKey.Text; }
-//			set { eServiceKey.Text = value; }
-//		}
-
 		public Service Service
 		{
 			get {
