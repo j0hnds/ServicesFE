@@ -326,6 +326,7 @@ namespace ServicesFE
 			w24.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button ();
+			this.buttonOk.Sensitive = false;
 			this.buttonOk.CanDefault = true;
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
@@ -343,8 +344,15 @@ namespace ServicesFE
 			this.DefaultWidth = 400;
 			this.DefaultHeight = 334;
 			this.Show ();
-			this.button230.Clicked += new global::System.EventHandler (this.OnGenerateToken);
-			this.button229.Clicked += new global::System.EventHandler (this.OnGeneratePassword);
+			this.eUserName.Changed += new global::System.EventHandler (this.OnUserNameChanged);
+			this.eToken.Changed += new global::System.EventHandler (this.OnTokenChanged);
+			this.eServiceClass.Changed += new global::System.EventHandler (this.OnServiceClassChanged);
+			this.ePort.Changed += new global::System.EventHandler (this.OnPortChanged);
+			this.ePassword.Changed += new global::System.EventHandler (this.OnPasswordChanged);
+			this.eHostName.Changed += new global::System.EventHandler (this.OnHostnameChanged);
+			this.eBaseUri.Changed += new global::System.EventHandler (this.OnBaseUriChanged);
+			this.cbThirdParties.Changed += new global::System.EventHandler (this.OnThirdPartyChanged);
+			this.cbServices.Changed += new global::System.EventHandler (this.OnServiceChanged);
 		}
 	}
 }

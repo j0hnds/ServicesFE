@@ -6,6 +6,8 @@ namespace ServicesFE
 {
 	public partial class ServiceDefinitionDialog : Gtk.Dialog
 	{
+		private ServiceDefinition _serviceDefinition;
+
 		public ServiceDefinitionDialog ()
 		{
 			this.Build ();
@@ -16,103 +18,55 @@ namespace ServicesFE
 			set { cbServices.Model = value; }
 		}
 
-		public int ActiveService
-		{
-			get { return cbServices.Active; }
-			set { cbServices.Active = value; }
-		}
-
-		public int ActiveThirdParty
-		{
-			get { return cbThirdParties.Active; }
-			set { cbThirdParties.Active = value; }
-		}
-
-		public int ServiceId 
+		public ServiceDefinition ServiceDefinition
 		{
 			get {
-				int id = -1;
-				TreeIter iter;
-				if (cbServices.GetActiveIter (out iter)) {
-					id = (int)cbServices.Model.GetValue (iter, 1);
-				}
-				return id;
+				return _serviceDefinition;
 			}
 			set {
-				cbServices.Active = ActiveIndex ((ListStore) cbServices.Model, value);
+				_serviceDefinition = value;
+				if (_serviceDefinition.ServiceId > 0) {
+					cbServices.Active = ActiveIndex ((ListStore)cbServices.Model, _serviceDefinition.ServiceId);
+					cbServices.Sensitive = false;
+				}
+				if (_serviceDefinition.ThirdPartyId > 0) {
+					cbThirdParties.Active = ActiveIndex ((ListStore)cbThirdParties.Model, _serviceDefinition.ThirdPartyId);
+					cbThirdParties.Sensitive = false;
+				}
+				eHostName.Text = _serviceDefinition.Hostname;
+				ePort.Text = _serviceDefinition.Port;
+				eBaseUri.Text = _serviceDefinition.BaseURI;
+				eUserName.Text = _serviceDefinition.Username;
+				eServiceClass.Text = _serviceDefinition.ServiceClass;
+				ePassword.Text = _serviceDefinition.Password;
+				eToken.Text = _serviceDefinition.Token;
 			}
 		}
 
-		public int ThirdPartyId 
+		public static void CreateServiceDefinition (ListStore servicesStore, ListStore thirdPartiesStore, System.Action<ServiceDefinitionDialog> createAction)
 		{
-			get {
-				int id = -1;
-				TreeIter iter;
-				if (cbThirdParties.GetActiveIter (out iter)) {
-					id = (int)cbThirdParties.Model.GetValue (iter, 1);
-				}
-				return id;
-			}
-			set {
-				cbThirdParties.Active = ActiveIndex ((ListStore) cbThirdParties.Model, value);
-			}
+			EditServiceDefinition (servicesStore, thirdPartiesStore, new ServiceDefinition (), createAction);
+		}
+
+		public static void EditServiceDefinition (ListStore servicesStore, ListStore thirdPartiesStore, ServiceDefinition svc, System.Action<ServiceDefinitionDialog> editAction)
+		{
+			ServiceDefinitionDialog dlg = new ServiceDefinitionDialog ();
+			dlg.Modal = true;
+			dlg.Services = servicesStore;
+			dlg.ThirdParties = thirdPartiesStore;
+			dlg.ServiceDefinition = svc;
+
+			int response = dlg.Run ();
+
+			if (response == (int)ResponseType.Ok) {
+				editAction (dlg);
+			} 
+			dlg.Destroy ();
 		}
 
 		public ListStore ThirdParties
 		{
 			set { cbThirdParties.Model = value; }
-		}
-
-//		public string ServiceName
-//		{
-//			set { lblService.Text = value; }
-//		}
-//
-//		public string ThirdPartyName
-//		{
-//			set { lblThirdParty.Text = value; }
-//		}
-
-		public string HostName
-		{
-			get { return eHostName.Text; }
-			set { eHostName.Text = value; }
-		}
-
-		public string Port
-		{
-			get { return ePort.Text; }
-			set { ePort.Text = value; }
-		}
-
-		public string BaseURI
-		{
-			get { return eBaseUri.Text; }
-			set { eBaseUri.Text = value; }
-		}
-
-		public string UserName
-		{
-			get { return eUserName.Text; }
-			set { eUserName.Text = value; }
-		}
-
-		public string ServiceClass
-		{
-			get { return eServiceClass.Text; }
-			set { eServiceClass.Text = value; }
-		}
-
-		public string Password
-		{
-			get { return ePassword.Text; }
-			set { ePassword.Text = value; }
-		}
-
-		public string Token
-		{
-			get { return eToken.Text; }
-			set { eToken.Text = value; }
 		}
 
 		private int ActiveIndex(ListStore store, int selectedId)
@@ -136,12 +90,73 @@ namespace ServicesFE
 
 		protected void OnGeneratePassword (object sender, EventArgs e)
 		{
-			ePassword.Text = Membership.GeneratePassword(12, 3);
+			_serviceDefinition.Password = Membership.GeneratePassword(12, 3);
+			ePassword.Text = _serviceDefinition.Password;
 		}
 
 		protected void OnGenerateToken (object sender, EventArgs e)
 		{
-			eToken.Text = Guid.NewGuid ().ToString ("d").Substring (1, 8);
+			_serviceDefinition.Token = Guid.NewGuid ().ToString ("d").Substring (1, 8);
+			eToken.Text = _serviceDefinition.Token;
+		}
+
+		protected void OnServiceChanged (object sender, EventArgs e)
+		{
+			TreeIter iter;
+			if (cbServices.GetActiveIter (out iter)) {
+				_serviceDefinition.ServiceId = (int)cbServices.Model.GetValue (iter, 1);
+			}
+
+		}
+
+		protected void OnThirdPartyChanged (object sender, EventArgs e)
+		{
+			TreeIter iter;
+			if (cbThirdParties.GetActiveIter (out iter)) {
+				_serviceDefinition.ThirdPartyId = (int)cbThirdParties.Model.GetValue (iter, 1);
+			}
+		}
+
+		protected void OnHostnameChanged (object sender, EventArgs e)
+		{
+			_serviceDefinition.Hostname = eHostName.Text;
+			buttonOk.Sensitive = _serviceDefinition.Valid ();
+		}
+
+		protected void OnPortChanged (object sender, EventArgs e)
+		{
+			_serviceDefinition.Port = ePort.Text;
+			buttonOk.Sensitive = _serviceDefinition.Valid ();
+		}
+
+		protected void OnBaseUriChanged (object sender, EventArgs e)
+		{
+			_serviceDefinition.BaseURI = eBaseUri.Text;
+			buttonOk.Sensitive = _serviceDefinition.Valid ();
+		}
+
+		protected void OnUserNameChanged (object sender, EventArgs e)
+		{
+			_serviceDefinition.Username = eUserName.Text;
+			buttonOk.Sensitive = _serviceDefinition.Valid ();
+		}
+
+		protected void OnServiceClassChanged (object sender, EventArgs e)
+		{
+			_serviceDefinition.ServiceClass = eServiceClass.Text;
+			buttonOk.Sensitive = _serviceDefinition.Valid ();
+		}
+
+		protected void OnPasswordChanged (object sender, EventArgs e)
+		{
+			_serviceDefinition.Password = ePassword.Text;
+			buttonOk.Sensitive = _serviceDefinition.Valid ();
+		}
+
+		protected void OnTokenChanged (object sender, EventArgs e)
+		{
+			_serviceDefinition.Token = eToken.Text;
+			buttonOk.Sensitive = _serviceDefinition.Valid ();
 		}
 	}
 }

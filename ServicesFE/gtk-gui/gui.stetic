@@ -51,7 +51,7 @@
           <widget class="Gtk.Notebook" id="nbTabs">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">3</property>
+            <property name="CurrentPage">4</property>
             <signal name="SwitchPage" handler="OnSwitchPage" />
             <child>
               <widget class="Gtk.VBox" id="vbox2">
@@ -576,6 +576,7 @@
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
+                            <signal name="CursorChanged" handler="OnServiceDefinitionCursorChanged" />
                           </widget>
                         </child>
                       </widget>
@@ -610,8 +611,9 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Button" id="button314">
+                          <widget class="Gtk.Button" id="buttonEditServiceDefinition">
                             <property name="MemberName" />
+                            <property name="Sensitive">False</property>
                             <property name="CanFocus">True</property>
                             <property name="UseStock">True</property>
                             <property name="Type">StockItem</property>
@@ -627,8 +629,9 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Button" id="button315">
+                          <widget class="Gtk.Button" id="buttonDeleteServiceDefinition">
                             <property name="MemberName" />
+                            <property name="Sensitive">False</property>
                             <property name="CanFocus">True</property>
                             <property name="UseStock">True</property>
                             <property name="Type">StockItem</property>
@@ -1350,7 +1353,6 @@
                 <property name="UseStock">True</property>
                 <property name="Type">StockItem</property>
                 <property name="StockId">gtk-execute</property>
-                <signal name="Clicked" handler="OnGeneratePassword" />
                 <property name="label">gtk-execute</property>
               </widget>
               <packing>
@@ -1376,7 +1378,6 @@
                 <property name="UseStock">True</property>
                 <property name="Type">StockItem</property>
                 <property name="StockId">gtk-execute</property>
-                <signal name="Clicked" handler="OnGenerateToken" />
                 <property name="label">gtk-execute</property>
               </widget>
               <packing>
@@ -1400,6 +1401,7 @@
                 <property name="MemberName" />
                 <property name="IsTextCombo">True</property>
                 <property name="Items" translatable="yes" />
+                <signal name="Changed" handler="OnServiceChanged" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -1420,6 +1422,7 @@
                 <property name="MemberName" />
                 <property name="IsTextCombo">True</property>
                 <property name="Items" translatable="yes" />
+                <signal name="Changed" handler="OnThirdPartyChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -1443,6 +1446,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnBaseUriChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -1466,6 +1470,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnHostnameChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -1489,6 +1494,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnPasswordChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">7</property>
@@ -1512,6 +1518,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnPortChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -1535,6 +1542,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnServiceClassChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">6</property>
@@ -1558,6 +1566,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnTokenChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">8</property>
@@ -1581,6 +1590,7 @@
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
+                <signal name="Changed" handler="OnUserNameChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">5</property>
@@ -1803,6 +1813,7 @@
         <child>
           <widget class="Gtk.Button" id="buttonOk">
             <property name="MemberName" />
+            <property name="Sensitive">False</property>
             <property name="CanDefault">True</property>
             <property name="CanFocus">True</property>
             <property name="UseStock">True</property>

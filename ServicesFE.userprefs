@@ -1,18 +1,19 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="ServicesFE/PublicKey.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="ServicesFE/ServiceDefinitionDialog.cs">
     <Files>
       <File FileName="ServicesFE/MainWindow.cs" Line="32" Column="32" />
       <File FileName="ServicesFE/WebServiceClient.cs" Line="1" Column="1" />
       <File FileName="ServicesFE/Service.cs" Line="1" Column="1" />
-      <File FileName="ServicesFE/ServiceDialog.cs" Line="1" Column="1" />
-      <File FileName="ServicesFE/PublicKey.cs" Line="31" Column="31" />
-      <File FileName="ServicesFE/PublicKeyDialog.cs" Line="45" Column="45" />
+      <File FileName="ServicesFE/ServiceDialog.cs" Line="4" Column="4" />
+      <File FileName="ServicesFE/ServiceDefinition.cs" Line="1" Column="1" />
+      <File FileName="ServicesFE/ServiceDefinitionDialog.cs" Line="41" Column="41" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/home/dsieh/Projects/ServicesFE/ServicesFE/MainWindow.cs" line="493" column="1" />
+      <Breakpoint file="/home/dsieh/Projects/ServicesFE/ServicesFE/ServiceDefinitionDialog.cs" line="51" column="1" />
+      <Breakpoint file="/home/dsieh/Projects/ServicesFE/ServicesFE/ServiceDefinitionDialog.cs" line="27" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

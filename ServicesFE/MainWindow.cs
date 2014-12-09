@@ -501,42 +501,13 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnNewServiceDefinition (object sender, EventArgs e)
 	{
-		ServiceDefinitionDialog dlg = new ServiceDefinitionDialog ();
-		dlg.Modal = true;
-		dlg.Services = sdServicesStore;
-		dlg.ThirdParties = sdThirdPartiesStore;
-
-		int response = dlg.Run ();
-
-		if (response == (int)ResponseType.Ok) {
-			// Actually save the new service definition
-			int serviceId = dlg.ServiceId;
-			int thirdPartyId = dlg.ThirdPartyId;
-			string hostname = dlg.HostName;
-			string port = dlg.Port;
-			string baseUri = dlg.BaseURI;
-			string userName = dlg.UserName;
-			string serviceClass = dlg.ServiceClass;
-			string password = dlg.Password;
-			string token = dlg.Token;
-
-			NameValueCollection nvc = new NameValueCollection ();
-			nvc.Add ("service_definition[service_id]", serviceId.ToString ());
-			nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString ());
-			nvc.Add ("service_definition[hostname]", hostname);
-			nvc.Add ("service_definition[port]", port);
-			nvc.Add ("service_definition[base_uri]", baseUri);
-			nvc.Add ("service_definition[username]", userName);
-			nvc.Add ("service_definition[service_class]", serviceClass);
-			nvc.Add ("credential[password]", password);
-			nvc.Add ("credential[token]", token);
-
+		ServiceDefinitionDialog.CreateServiceDefinition (sdServicesStore, sdThirdPartiesStore, (dlg) => {
 			WebClientCall ((wsc) => {
-				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties/" + thirdPartyId + "/service_definitions", nvc);
+				Dictionary<string,string> postResponse = wsc.DoPost ("services/third_parties/" + dlg.ServiceDefinition.ThirdPartyId + "/service_definitions", dlg.ServiceDefinition.Parameters);
 				ShowMessage (postResponse);
 			});
-		} 
-		dlg.Destroy ();
+			LoadServiceDefinitions("third_party_id", dlg.ServiceDefinition.ThirdPartyId.ToString());
+		});
 	}
 
 	protected void OnEditServiceDefinition (object sender, EventArgs e)
@@ -544,53 +515,15 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = serviceDefinitionsTree.Selection;
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
-			int i = (int)serviceDefinitionsStore.GetValue (iter, 0);
+			ServiceDefinition sd = (ServiceDefinition)serviceDefinitionsStore.GetValue (iter, 10);
 
-			ServiceDefinitionDialog dlg = new ServiceDefinitionDialog ();
-			dlg.Modal = true;
-			dlg.Services = sdServicesStore;
-			dlg.ThirdParties = sdThirdPartiesStore;
-			dlg.HostName = (string)serviceDefinitionsStore.GetValue (iter, 1);
-			dlg.Port = (string)serviceDefinitionsStore.GetValue (iter, 2);
-			dlg.BaseURI = (string)serviceDefinitionsStore.GetValue (iter, 3);
-			dlg.UserName = (string)serviceDefinitionsStore.GetValue (iter, 4);
-			dlg.ServiceClass = (string)serviceDefinitionsStore.GetValue (iter, 5);
-			dlg.Password = (string)serviceDefinitionsStore.GetValue (iter, 6);
-			dlg.Token = (string)serviceDefinitionsStore.GetValue (iter, 7);
-			dlg.ServiceId = (int)serviceDefinitionsStore.GetValue (iter, 8);
-			dlg.ThirdPartyId = (int)serviceDefinitionsStore.GetValue (iter, 9);
-
-			int response = dlg.Run ();
-
-			if (response == (int)ResponseType.Ok) {
-				// Actually save the new service definition
-				int serviceId = dlg.ServiceId;
-				int thirdPartyId = dlg.ThirdPartyId;
-				string hostname = dlg.HostName;
-				string port = dlg.Port;
-				string baseUri = dlg.BaseURI;
-				string userName = dlg.UserName;
-				string serviceClass = dlg.ServiceClass;
-				string password = dlg.Password;
-				string token = dlg.Token;
-
-				NameValueCollection nvc = new NameValueCollection ();
-				nvc.Add ("service_definition[service_id]", serviceId.ToString ());
-				nvc.Add ("service_definition[third_party_id]", thirdPartyId.ToString ());
-				nvc.Add ("service_definition[hostname]", hostname);
-				nvc.Add ("service_definition[port]", port);
-				nvc.Add ("service_definition[base_uri]", baseUri);
-				nvc.Add ("service_definition[username]", userName);
-				nvc.Add ("service_definition[service_class]", serviceClass);
-				nvc.Add ("credential[password]", password);
-				nvc.Add ("credential[token]", token);
-
+			ServiceDefinitionDialog.EditServiceDefinition (sdServicesStore, sdThirdPartiesStore, sd, (dlg) => {
 				WebClientCall ((wsc) => {
-					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, nvc);
+					Dictionary<string,string> postResponse = wsc.DoPut ("services/third_parties/" + sd.ThirdPartyId + "/service_definitions/" + sd.Id, sd.Parameters);
 					ShowMessage (postResponse);
 				});
-			} 
-			dlg.Destroy ();
+				LoadServiceDefinitions("third_party_id", dlg.ServiceDefinition.ThirdPartyId.ToString());
+			});
 		}
 	}
 
@@ -599,25 +532,21 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = serviceDefinitionsTree.Selection;
 		TreeIter iter;
 		if (selection.GetSelected (out iter)) {
-			int i = (int)serviceDefinitionsStore.GetValue (iter, 0);
-			int thirdPartyId = (int)serviceDefinitionsStore.GetValue (iter, 9);
-
-			string hostname = (string)serviceDefinitionsStore.GetValue (iter, 1);
+			ServiceDefinition sd = (ServiceDefinition)serviceDefinitionsStore.GetValue (iter, 10);
 			ConfirmIt (string.Format ("Are you sure you want to delete service definition '{0}'?", 
-				hostname),
+				sd.Hostname),
 				() => {
 					WebClientCall((wsc) => {
-						Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + thirdPartyId + "/service_definitions/" + i, new NameValueCollection ());
+						Dictionary<string,string> postResponse = wsc.DoDelete ("services/third_parties/" + sd.ThirdPartyId + "/service_definitions/" + sd.Id, new NameValueCollection ());
 						ShowMessage (postResponse);
 					});
+					LoadServiceDefinitions("third_party_id", sd.ThirdPartyId.ToString());
 				});
 		}
 	}
 
 	protected void OnSdServiceChanged (object sender, EventArgs e)
 	{
-		// throw new NotImplementedException ();
-		// int svcIdx = cbServices.Active;
 		TreeIter iter;
 		if (cbServices.GetActiveIter (out iter)) {
 			int serviceId = (int)sdServicesStore.GetValue (iter, 1);
@@ -627,7 +556,6 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnSdThirdPartyChanged (object sender, EventArgs e)
 	{
-		// throw new NotImplementedException ();
 		TreeIter iter;
 		if (cbThirdParties.GetActiveIter (out iter)) {
 			int thirdPartyId = (int)sdThirdPartiesStore.GetValue (iter, 1);
@@ -737,5 +665,13 @@ public partial class MainWindow: Gtk.Window
 		TreeIter iter;
 		buttonEditPublicKey.Sensitive = selection.GetSelected (out iter);
 		buttonDeletePublicKey.Sensitive = selection.GetSelected (out iter);
+	}
+
+	protected void OnServiceDefinitionCursorChanged (object sender, EventArgs e)
+	{
+		TreeSelection selection = serviceDefinitionsTree.Selection;
+		TreeIter iter;
+		buttonEditServiceDefinition.Sensitive = selection.GetSelected (out iter);
+		buttonDeleteServiceDefinition.Sensitive = selection.GetSelected (out iter);
 	}
 }

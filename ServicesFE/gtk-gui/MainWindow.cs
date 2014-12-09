@@ -101,9 +101,9 @@ public partial class MainWindow
 	
 	private global::Gtk.Button button313;
 	
-	private global::Gtk.Button button314;
+	private global::Gtk.Button buttonEditServiceDefinition;
 	
-	private global::Gtk.Button button315;
+	private global::Gtk.Button buttonDeleteServiceDefinition;
 	
 	private global::Gtk.Label label5;
 	
@@ -143,7 +143,7 @@ public partial class MainWindow
 		this.nbTabs = new global::Gtk.Notebook ();
 		this.nbTabs.CanFocus = true;
 		this.nbTabs.Name = "nbTabs";
-		this.nbTabs.CurrentPage = 3;
+		this.nbTabs.CurrentPage = 4;
 		// Container child nbTabs.Gtk.Notebook+NotebookChild
 		this.vbox2 = new global::Gtk.VBox ();
 		this.vbox2.Name = "vbox2";
@@ -504,26 +504,28 @@ public partial class MainWindow
 		w38.Expand = false;
 		w38.Fill = false;
 		// Container child vbox7.Gtk.Box+BoxChild
-		this.button314 = new global::Gtk.Button ();
-		this.button314.CanFocus = true;
-		this.button314.Name = "button314";
-		this.button314.UseStock = true;
-		this.button314.UseUnderline = true;
-		this.button314.Label = "gtk-edit";
-		this.vbox7.Add (this.button314);
-		global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox7 [this.button314]));
+		this.buttonEditServiceDefinition = new global::Gtk.Button ();
+		this.buttonEditServiceDefinition.Sensitive = false;
+		this.buttonEditServiceDefinition.CanFocus = true;
+		this.buttonEditServiceDefinition.Name = "buttonEditServiceDefinition";
+		this.buttonEditServiceDefinition.UseStock = true;
+		this.buttonEditServiceDefinition.UseUnderline = true;
+		this.buttonEditServiceDefinition.Label = "gtk-edit";
+		this.vbox7.Add (this.buttonEditServiceDefinition);
+		global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox7 [this.buttonEditServiceDefinition]));
 		w39.Position = 1;
 		w39.Expand = false;
 		w39.Fill = false;
 		// Container child vbox7.Gtk.Box+BoxChild
-		this.button315 = new global::Gtk.Button ();
-		this.button315.CanFocus = true;
-		this.button315.Name = "button315";
-		this.button315.UseStock = true;
-		this.button315.UseUnderline = true;
-		this.button315.Label = "gtk-delete";
-		this.vbox7.Add (this.button315);
-		global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox7 [this.button315]));
+		this.buttonDeleteServiceDefinition = new global::Gtk.Button ();
+		this.buttonDeleteServiceDefinition.Sensitive = false;
+		this.buttonDeleteServiceDefinition.CanFocus = true;
+		this.buttonDeleteServiceDefinition.Name = "buttonDeleteServiceDefinition";
+		this.buttonDeleteServiceDefinition.UseStock = true;
+		this.buttonDeleteServiceDefinition.UseUnderline = true;
+		this.buttonDeleteServiceDefinition.Label = "gtk-delete";
+		this.vbox7.Add (this.buttonDeleteServiceDefinition);
+		global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox7 [this.buttonDeleteServiceDefinition]));
 		w40.Position = 2;
 		w40.Expand = false;
 		w40.Fill = false;
@@ -580,8 +582,9 @@ public partial class MainWindow
 		this.buttonDeletePublicKey.Clicked += new global::System.EventHandler (this.OnDeletePublicKey);
 		this.cbThirdParties.Changed += new global::System.EventHandler (this.OnSdThirdPartyChanged);
 		this.cbServices.Changed += new global::System.EventHandler (this.OnSdServiceChanged);
+		this.serviceDefinitionsTree.CursorChanged += new global::System.EventHandler (this.OnServiceDefinitionCursorChanged);
 		this.button313.Clicked += new global::System.EventHandler (this.OnNewServiceDefinition);
-		this.button314.Clicked += new global::System.EventHandler (this.OnEditServiceDefinition);
-		this.button315.Clicked += new global::System.EventHandler (this.OnDeleteServiceDefinition);
+		this.buttonEditServiceDefinition.Clicked += new global::System.EventHandler (this.OnEditServiceDefinition);
+		this.buttonDeleteServiceDefinition.Clicked += new global::System.EventHandler (this.OnDeleteServiceDefinition);
 	}
 }
