@@ -90,6 +90,9 @@
     <Compile Include="PublicKey.cs" />
     <Compile Include="DateConverter.cs" />
     <Compile Include="ServiceDefinition.cs" />
+    <Compile Include="AccountMappingsDialog.cs" />
+    <Compile Include="gtk-gui\ServicesFE.AccountMappingsDialog.cs" />
+    <Compile Include="AccountMapping.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

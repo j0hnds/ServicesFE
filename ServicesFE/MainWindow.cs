@@ -657,6 +657,7 @@ public partial class MainWindow: Gtk.Window
 		TreeSelection selection = thirdPartiesTree.Selection;
 		TreeIter iter;
 		buttonEditThirdParty.Sensitive = selection.GetSelected (out iter);
+		buttonShowAccountMappings.Sensitive = selection.GetSelected (out iter);
 	}
 
 	protected void OnPublicKeyCursorChange (object sender, EventArgs e)
@@ -673,5 +674,19 @@ public partial class MainWindow: Gtk.Window
 		TreeIter iter;
 		buttonEditServiceDefinition.Sensitive = selection.GetSelected (out iter);
 		buttonDeleteServiceDefinition.Sensitive = selection.GetSelected (out iter);
+	}
+
+	protected void OnClickShowAccountMappings (object sender, EventArgs e)
+	{
+
+		TreeSelection selection = thirdPartiesTree.Selection;
+		TreeIter iter;
+		if (selection.GetSelected (out iter)) {
+			ThirdParty tp = (ThirdParty)thirdPartiesStore.GetValue (iter, 4);
+			AccountMappingsDialog.ManageAccountMappings (tp, (dlg) => {
+				// Not doing anything in here...
+			});
+		}
+
 	}
 }
